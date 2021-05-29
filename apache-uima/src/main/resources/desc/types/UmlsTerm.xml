@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.    
+-->  
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+        <name>UmlsTerm</name>
+        <version>1</version>
+        <vendor>Biomedical Informatics Center at MUSC</vendor>
+        <types>
+                <typeDescription>
+                        <name>org.apache.uima.conceptMapper.UmlsTerm</name>
+                        <description>Annotation for dictionary lookup matches</description>
+                        <supertypeName>uima.tcas.Annotation</supertypeName>
+                        <features>
+                                <featureDescription>
+                                        <name>PreferredTerm</name>
+                                        <description>canonical form</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>ConceptCode</name>
+                                        <description>UMLS Metathesaurus Concept Code for the matched term</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>ConceptType</name>
+                                        <description>Source reference
+					for concept code (e.g., CUI,
+					SNOMEDCT_US, etc.)</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>TUI</name>
+                                        <description>UMLS Metathesaurus TUI for the matched term</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>BasicLevelConceptCode</name>
+                                        <description>UMLS Metathesaurus Concept Code for the basic level term the matched terms fits within</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>BasicLevelConceptType</name>
+                                        <description>Source reference
+					for the basic level concept
+					code (e.g., CUI,
+					SNOMEDCT_US, etc.)</description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>enclosingSpan</name>
+                                        <description>span that this NoTerm is contained within (i.e. its sentence)</description>
+                                        <rangeTypeName>uima.tcas.Annotation</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>matchedText</name>
+                                        <description></description>
+                                        <rangeTypeName>uima.cas.String</rangeTypeName>
+                                </featureDescription>
+                                <featureDescription>
+                                        <name>matchedTokens</name>
+                                        <description></description>
+                                        <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                                </featureDescription>
+                        </features>
+                </typeDescription>
+        </types>
+</typeSystemDescription>

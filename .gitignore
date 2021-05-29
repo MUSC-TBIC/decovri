@@ -1,0 +1,58 @@
+
+builds/
+
+# ############################
+# lexicons, machine learning models, and config files that can't or
+# shouldn't be distributed via git
+
+database_connection.properties
+pipeline.properties
+
+*.crt
+*.jks
+*.key
+*.RRF
+apache-uima/resources/dict/*.xml
+apache-uima/resources/*Models/
+python/models/*.h5
+
+# ############################
+# temporary and editor files
+
+*~
+~*
+\#*
+\.\#*
+
+# ############################
+# Java errata files
+
+.project
+.classpath
+.settings
+install.xml
+bin/
+target/
+
+# ############################
+# Python errata files
+
+.cache
+.ipynb_checkpoints
+__pycache__
+*.pyc
+
+# ############################
+# LaTeX errata files
+
+*.aux
+*.log
+
+# ############################
+# coverage and unit testing files
+
+.coverage
+coverage.xml
+junit.xml
+cov_*/
+apache-uima/data/test/

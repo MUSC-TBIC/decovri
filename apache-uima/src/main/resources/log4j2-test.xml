@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+  <Properties>
+    <Property name="logDirectory">logs</Property>
+  </Properties>
+  <Appenders>
+    <Console name="DEBUGOUT" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <Filters>
+	<ThresholdFilter level="debug" />
+        <ThresholdFilter level="info" onMatch="DENY" onMismatch="ACCEPT" />
+      </Filters>
+    </Console>
+    <Console name="STDOUT" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <Filters>
+	<ThresholdFilter level="info" />
+        <ThresholdFilter level="warn" onMatch="DENY" onMismatch="ACCEPT" />
+      </Filters>
+    </Console>
+    <Console name="STDERR" target="SYSTEM_ERR">
+      <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <Filters>
+        <ThresholdFilter level="warn" onMatch="ACCEPT" />
+      </Filters>
+    </Console>
+    <File name="TIMINGTRACE" fileName="${logDirectory}/timing_trace.log">
+      <PatternLayout pattern="%d{HH:mm:ss dd.mm} [%t] [%-5level] %logger{36} - %msg %n" />
+      <Filters>
+	<ThresholdFilter level="trace" />
+	<ThresholdFilter level="debug" onMatch="DENY" onMismatch="NEUTRAL" />
+      </Filters>
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="STDERR"/>
+    </Root>
+    <Logger name="edu.musc.tbic.uima.Decovri"
+	    level="TRACE" additivity="false">
+      <AppenderRef ref="TIMINGTRACE"/>
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="DEBUGOUT"/>
+      <AppenderRef ref="STDERR"/>
+    </Logger>
+  </Loggers>
+</Configuration>

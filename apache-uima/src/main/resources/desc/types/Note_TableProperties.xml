@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>Note_TableProperties</name>
+  <description>Reference page:  https://github.com/OHDSI/CommonDataModel/wiki/NOTE
+  OMOP Common Data Model v6.0 Specifications 11October2018</description>
+  <version>1.0</version>
+  <vendor/>
+  <types>
+    <typeDescription>
+      <name>edu.musc.tbic.omop_cdm.Note_TableProperties</name>
+      <description>A datastructure for storing all the properties associated with a note in the NOTE table</description>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>note_id</name>
+          <description>A unique identifier for each note.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>person_id</name>
+          <description>A foreign key identifier to the Person about whom the Note was recorded. The demographic details of that Person are stored in the PERSON table.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_date</name>
+          <description>The date the note was recorded.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_datetime</name>
+          <description>The date and time the note was recorded.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_source_value</name>
+          <description>The source value associated with the origin of the Note - varchar(50)</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

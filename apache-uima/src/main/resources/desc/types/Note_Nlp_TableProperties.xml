@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>Note_Nlp_TableProperties</name>
+  <description>Reference page:  https://github.com/OHDSI/CommonDataModel/wiki/NOTE_NLP
+
+  OMOP Common Data Model v6.0 Specifications 11October2018</description>
+  <version>1.0</version>
+  <vendor/>
+  <types>
+    <typeDescription>
+      <name>edu.musc.tbic.omop_cdm.Note_Nlp_TableProperties</name>
+      <description>A datastructure for storing all the properties
+      associated with NLP extracted information in the NOTE_NLP
+      table</description>
+      <supertypeName>uima.tcas.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>note_nlp_id</name>
+          <description>A unique identifier for each note.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_id</name>
+          <description>A unique identifier for each note.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>section_concept_id</name>
+          <description>A foreign key to the predefined Concept in the
+          Standardized Vocabularies representing the section of the
+          extracted term.</description>
+          <rangeTypeName>uima.cas.Integer</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>snippet</name>
+          <description>A small window of text surrounding the term.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>offset</name>
+          <description>Character offset of the extracted term in the
+          input note.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>lexical_variant</name>
+          <description>Raw text extracted from the NLP tool.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_nlp_concept_id</name>
+          <description>A foreign key to the predefined Concept in the
+          Standardized Vocabularies reflecting the normalized concept
+          for the extracted term. Domain of the term is represented as
+          part of the Concept table.</description>
+          <rangeTypeName>uima.cas.Integer</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>note_nlp_source_concept_id</name>
+          <description>A foreign key to a Concept that refers to the
+          code in the source vocabulary used by the NLP
+          system</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>nlp_system</name>
+          <description>Name and version of the NLP system that
+          extracted the term. Useful for data provenance.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>nlp_date</name>
+          <description>The date of the note processing. Useful for
+          data provenance.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>nlp_datetime</name>
+          <description>The date and time of the note
+          processing. Useful for data provenance.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>term_exists</name>
+          <description>A summary modifier that signifies presence or
+          absence of the term for a given patient. Useful for quick
+          querying.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>term_temporal</name>
+          <description>An optional time modifier associated with the
+          extracted term. (for now “past” or “present”
+          only). Standardize it later.</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>term_modifiers</name>
+          <description>A compact description of all the modifiers of
+          the specific term extracted by the NLP system. (e.g. “son
+          has rash” ? “negated=no,subject=family,
+          certainty=undef,conditional=false,general=false”).</description>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>

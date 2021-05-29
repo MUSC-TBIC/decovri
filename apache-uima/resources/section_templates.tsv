@@ -1,0 +1,101 @@
+This Virtual Encounter.* any associated images is available in Zipnosis.	Unknown/Unclassified		skip=true
+Date:	Date/Time		
+Clinician:	Providers		
+Clinician NPI:	Providers		
+Providers:	Providers		
+Patient:	Patient information/Demographics		
+Patient DOB:	Patient information/Demographics		
+Patient Address:	Patient information/Demographics		
+Patient Phone:	Patient information/Demographics		
+Patient Protocol:	Administrative/Formatting		
+			
+Patient Summary:	Present illness		
+When\s+asked\s+the\s+question\s+\"Are you a current patient at MUSC Health?	Subsection	1	skip=true
+Reason for virtual visit as reported by the patient \(free-text\):	Subsection	1	
+A synchronous visit is necessary because the patient reported the\s+following abnormal symptoms:	Present illness		
+Symptom details	Present illness		
+Nasal secretions:	Subsection	1	
+Cough:	Subsection	1	
+Sore throat:	Subsection	1	
+Temperature:	Subsection	1	
+Wheezing:	Subsection	1	
+Headache:	Subsection	1	
+Precipitating events	Present illness		
+			
+Pertinent COVID-19 \(Coronavirus\) information	Present illness		
+Countries or locations traveled as reported by the patient \(free\s+text\):	Present illness		
+Triage Point\(s\) temporarily suspended for COVID-19 \(Coronavirus\)\s+screening	Present illness		
+Pertinent medical history	Present illness		
+Weight:	Subsection	1	
+Height:	Subsection	1	
+Additional health information pertinent to this virtual visit as\s+reported by the patient \(free text\):	Subsection	1	
+Additional information as reported by the patient .free text.:	Subsection	1	
+MEDICATIONS:	Medications		
+ALLERGIES:	Allergies		
+Clinician Response:	Follow-up/Instructions		skip=true
+Medication information	Medications		
+I am prescribing:	Medications		
+Self care	Follow-up/Instructions		skip=true
+(\*+\s+|\b)COVID-19 \(Coronavirus\) General Information(\s+\*+|\b)	Unknown/Unclassified		skip=true
+How can I protect myself and others from the COVID-19\s+\(Coronavirus\)?	Follow-up/Instructions		skip=true
+Self-monitoring	Follow-up/Instructions		skip=true
+Steps to help prevent the spread of COVID-19 \(Coronavirus\) if you\s+are sick	Follow-up/Instructions		skip=true
+Do I need to be tested for COVID-19 \(Coronavirus\)?	Follow-up/Instructions		skip=true
+Diagnosis:	Diagnoses		
+Diagnosis ICD:	Diagnoses		
+Follow up instructions:	Follow-up/Instructions		
+Got Your Flu Shot Yet.*the flu viruses expected to be circulating in the community.	Follow-up/Instructions	1	skip=true
+Thank you for using Virtual Urgent Care; In response to the recent COVID-19.*for 14 days or until testing is complete.	Follow-up/Instructions	1	skip=true
+Triage Notes:	Follow-up/Instructions		
+Additional Clinician Notes:	Follow-up/Instructions		
+Synchronous Triage:	Administration		
+Prescription:	Medications		
+Refills:	Subsection	1	
+Refill as needed:	Subsection	1	
+Allow substitutions:	Subsection	1	
+Pharmacy:	Subsection	1	
+			
+Addendum:	Addendum		
+Advance directive/Code:	Advance directive/Code		
+Assessment/Plan:	Assessment/Plan		
+Assessment:	Assessment		
+Plan:	Plan		
+Chief complaint:	Chief complaint		
+Complications:	Complications		
+Consultations:	Consultations		
+Diagnoses:	Diagnoses		
+Admission diagnoses:	Admission diagnoses		
+Discharge diagnoses:	Discharge diagnoses		
+Pre-operative diagnoses:	Pre-operative diagnoses		
+Post-operative diagnoses:	Post-operative diagnoses		
+Family history:	Family history		
+Follow-up/Instructions:	Follow-up/Instructions		
+Hospital course:	Hospital course		
+Immunizations:	Immunizations		
+Investigations/Results:	Investigations/Results		
+Laboratory tests:	Laboratory tests		
+Radiology:	Radiology		
+Pathology:	Pathology		
+Admission medications:	Admission medications		
+Discharge medications:	Discharge medications		
+Nutrition:	Nutrition		
+Past history:	Past history		
+Past medical history:	Past medical history		
+Past surgical history:	Past surgical history		
+Patient information/Demographics:	Patient information/Demographics		
+Physical examination/Status:	Physical examination/Status		
+Present illness:	Present illness		
+Problems:	Problems		
+Procedures:	Procedures		
+Procedure anesthesia:	Procedure anesthesia		
+Procedure description:	Procedure description		
+Procedure disposition:	Procedure disposition		
+Procedure estimated blood loss:	Procedure estimated blood loss		
+Procedure findings:	Procedure findings		
+Procedure implants:	Procedure implants		
+Procedure indications:	Procedure indications		
+Procedure specimens taken:	Procedure specimens taken		
+			
+Reasons/Indications:	Reasons/Indications		
+Review of systems:	Review of systems		
+Social history:	Social history		

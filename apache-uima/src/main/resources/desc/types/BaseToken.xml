@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+license agreements. See the NOTICE file distributed with this work for additional 
+information regarding copyright ownership. The ASF licenses this file to 
+you under the Apache License, Version 2.0 (the "License"); you may not use 
+this file except in compliance with the License. You may obtain a copy of 
+the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+by applicable law or agreed to in writing, software distributed under the 
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+OF ANY KIND, either express or implied. See the License for the specific 
+language governing permissions and limitations under the License. -->
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <name>BaseToken</name>
+  <description />
+  <version>1.0</version>
+  <vendor />
+  <types>
+    <typeDescription>
+      <name>org.apache.ctakes.typesystem.type.syntax.BaseToken</name>
+      <description>A supertype for tokens subsuming word, punctuation, symbol, newline, contraction, or number.  Includes parts of speech, which are grammatical categories, e.g., noun (NN) or preposition (IN) that use Penn Treebank tags with a few additions.  Equivalent to cTAKES: edu.mayo.bmi.uima.core.type.BaseToken</description>
+      <supertypeName>uima.tt.TokenAnnotation</supertypeName>
+      <features>
+        <featureDescription>
+	  <name>tokenNumber</name>
+	  <description/>
+	  <rangeTypeName>uima.cas.Integer</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+	  <name>normalizedForm</name>
+	  <description/>
+	  <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+	  <name>partOfSpeech</name>
+	  <description/>
+	  <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+	  <name>lemmaEntries</name>
+	  <description/>
+	  <rangeTypeName>uima.cas.FSList</rangeTypeName>
+	  <elementType>org.apache.ctakes.typesystem.type.syntax.Lemma</elementType>
+        </featureDescription>
+      </features>
+    </typeDescription>
+  </types>
+</typeSystemDescription>
