@@ -10,7 +10,7 @@ cp resources/pipeline.properties.TEMPLATE \
   resources/pipeline.properties
 
 cp src/main/resources/database_connection.properties.TEMPLATE \
-  src/main/resources/database_connection.properties
+  resources/database_connection.properties
 
 ```
 
@@ -85,6 +85,8 @@ cd ${PIPELINE_ROOT}
 mvn package
 
 ```
+
+## IntelliJ Settings ##
 
 ## Eclipse Settings ##
 
