@@ -20,6 +20,7 @@
 package edu.musc.tbic.readers;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -35,6 +36,10 @@ import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.FileUtils;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.musc.tbic.uima.Decovri;
 
 
 /**
@@ -49,6 +54,9 @@ import org.apache.uima.util.ProgressImpl;
  * 
  */
 public class FileSystemCollectionReader extends CollectionReader_ImplBase {
+    
+    private static final Logger mLogger = LoggerFactory.getLogger( Decovri.class );
+    
   /**
    * Name of configuration parameter that must be set to the path of a directory containing input
    * files.
@@ -163,8 +171,14 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 
     // open input stream to file
     File file = (File) mFiles.get(mCurrentIndex++);
-    String text = FileUtils.file2String(file, mEncoding);
-      // put document in CAS
+    String text = "";
+    try{
+        text = FileUtils.file2String(file, mEncoding);
+    } catch ( FileNotFoundException e ){
+        mLogger.warn( "Skipping file due to FileNotFoundException: " + file.getName() );
+        return;
+    }
+    // put document in CAS
     jcas.setDocumentText(text);
 
     // set language if it was explicitly specified as a configuration parameter

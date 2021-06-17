@@ -1,4 +1,4 @@
-package edu.musc.tbic.covid;
+package edu.musc.tbic.textspans;
 
 import static org.junit.jupiter.api.Assertions.*;
 
