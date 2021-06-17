@@ -27,12 +27,28 @@ python/models/*.h5
 # ############################
 # Java errata files
 
+bin/
+target/
+*.jar
+
+# #############
+# Eclipse files
+
 .project
 .classpath
 .settings
 install.xml
-bin/
-target/
+
+# #############
+# IntelliJ files
+
+**/.idea/libraries
+**/.idea/shelf
+**/.idea/*.xml
+*.iml
+
+## Don't ignore runConfigurations. We want to share these.
+!**/.idea/runConfigurations
 
 # ############################
 # Python errata files
