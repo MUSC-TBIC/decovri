@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Decovri Help Test" type="Application" factoryName="Application">
+    <envs>
+      <env name="VERSION" value="21.24.0" />
+      <env name=" UIMA_JVM_OPTS" value="&quot;-Xms128M -Xmx2G&quot;" />
+      <env name=" CONCEPTMAPPER_HOME" value="&quot;$USER_HOME$/bin/ConceptMapper-2.10.2&quot;" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="edu.musc.tbic.uima.Decovri" />
+    <module name="decovri" />
+    <option name="PROGRAM_PARAMETERS" value="--help" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
