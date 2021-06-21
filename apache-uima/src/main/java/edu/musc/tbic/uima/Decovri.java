@@ -599,6 +599,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // in the pipeline.properties file
             if( pipeline_properties.containsKey( "fs.out.txt" ) ){
                 txt_output_dir = pipeline_properties.getProperty( "fs.out.txt" );
+                if (txt_output_dir.startsWith("~")){
+                    mLogger.warn("Output directory starts with '~', did you mean to use your full home path?");
+                }
                 mLogger.debug( "Setting annotated txt output directory: " + txt_output_dir );
             }
             if( pipeline_properties.containsKey( "fs.error.txt" ) ){
@@ -634,6 +637,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // in the pipeline.properties file
             if( pipeline_properties.containsKey( "fs.out.xmi" ) ){
                 xml_output_dir = pipeline_properties.getProperty( "fs.out.xmi" );
+                if (xml_output_dir.startsWith("~")){
+                    mLogger.warn("Output directory starts with '~', did you mean to use your full home path?");
+                }
                 mLogger.debug( "Setting XML output directory: " + xml_output_dir );
             }
             if( pipeline_properties.containsKey( "fs.error.xmi" ) ){
