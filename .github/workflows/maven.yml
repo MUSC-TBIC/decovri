@@ -14,6 +14,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      UIMA_VERSION: ${{ '2.10.4' }}
+      UIMA_HOME: ${{ '~/apache-uima' }}
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 8
@@ -31,9 +35,6 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/apache-uima
-        env:
-          UIMA_VERSION: ${{ '2.10.4' }}
-          UIMA_HOME: ${{ '~/apache-uima' }}
         key: ${{ runner.os }}-uima-${{ env.UIMA_VERSION }}
         restore-keys: ${{ runner.os }}-uima
     - name: Download Apache UIMA
