@@ -47,7 +47,7 @@ jobs:
     - name: Print the file path
       run: echo "The file was downloaded to ${{ steps.download-apache-uima.outputs.file-path }}"
     - name: Unpack Apache UIMA
-      run: tar -zxf ${{ steps.download-apache-uima.outputs.file-path }}
+      run: tar -zxf '~/uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
       working-directory: apache-uima
