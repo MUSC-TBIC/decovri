@@ -17,6 +17,8 @@ jobs:
     env:
       UIMA_VERSION: ${{ '2.10.4' }}
       UIMA_HOME: ${{ '~/apache-uima' }}
+      CONCEPTMAPPER_VERSION: ${{ '2.10.2' }}
+      CONCEPTMAPPER_HOME: ${{ '~/ConceptMapper' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -31,23 +33,46 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+    ################################
+    ## Apache UIMA
     - name: Cache Apache UIMA
       uses: actions/cache@v2
+      id: cache-apache-uima
       with:
         path: ~/apache-uima
         key: ${{ runner.os }}-uima-${{ env.UIMA_VERSION }}
         restore-keys: ${{ runner.os }}-uima
-    - name: Download a file
+    - name: Download Apache UIMA
       uses: carlosperate/download-file-action@v1.0.3
-      id: download-apache-uima
+      if: steps.cache-apache-uima.outputs.cache-hit != 'true'
       with:
         file-url: 'https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
         file-name: 'uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
         location: '~/'
-    - name: Print the file path
-      run: echo "The file was downloaded to ${{ steps.download-apache-uima.outputs.file-path }}"
     - name: Unpack Apache UIMA
+      if: steps.cache-apache-uima.outputs.cache-hit != 'true'
       run: tar -zxf '~/uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
+    ################################
+    ## Apache ConceptMapper
+    - name: Cache Apache ConceptMapper
+      uses: actions/cache@v2
+      id: cache-conceptmapper
+      with:
+        path: ~/ConceptMapper
+        key: ${{ runner.os }}-conceptmapper-${{ env.CONCEPTMAPPER_VERSION }}
+        restore-keys: ${{ runner.os }}-conceptmapper
+    - name: Download Apache ConceptMapper
+      uses: carlosperate/download-file-action@v1.0.3
+      if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
+      with:
+        file-url: 'https://downloads.apache.org/uima/uima-addons/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
+        file-name: 'ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
+        location: '~/'
+    - name: Unpack Apache ConceptMapper
+      if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
+      run: mkdir ~/ConceptMapper && cd ~/ConceptMapper && tar -zxf '~/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
+    ################################
+    ## mvn package
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
       working-directory: apache-uima
