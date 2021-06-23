@@ -37,9 +37,17 @@ jobs:
         path: ~/apache-uima
         key: ${{ runner.os }}-uima-${{ env.UIMA_VERSION }}
         restore-keys: ${{ runner.os }}-uima
-    - name: Download Apache UIMA
-      run: if [ ! -d ~/apache-uima ]; then curl -SL --output uimaj-${{ env.UIMA_VERSION }}-bin.zip https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.zip && echo `ls` && echo `pwd`; fi
-      working-directory: ~/
+    - name: Download a file
+      uses: carlosperate/download-file-action@v1.0.3
+      id: download-apache-uima
+      with:
+        file-url: 'https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.tgz'
+        file-name: 'uimaj-${{ env.UIMA_VERSION }}-bin.tgz'
+        location: '~/'
+    - name: Print the file path
+      run: echo "The file was downloaded to ${{ steps.download-apache-uima.outputs.file-path }}"
+    - name: Unpack Apache UIMA
+      run: tar -zxf ${{ steps.download-apache-uima.outputs.file-path }}
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
       working-directory: apache-uima
