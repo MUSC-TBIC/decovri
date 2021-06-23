@@ -297,22 +297,25 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         // Sectionizer
         ///////////////////////////////////////////////////
         if( pipeline_modules.contains( "Template Sectionizer" ) ){
-            mLogger.info( "Loading module 'TemplateSectionizer'" );
-            AnalysisEngineDescription noteSectionizer = AnalysisEngineFactory.createEngineDescription(
-                    TemplateSectionizer.class );
-            builder.add( noteSectionizer );
-//        } else if( pipeline_modules.contains( "SVM Sectionizer" ) ){
-//            mLogger.info( "Loading Weka-based SVM Sectionizer" );
-//            AnalysisEngineDescription wekaSectionizer = AnalysisEngineFactory.createEngineDescription(
-//                    WekaSectionizer.class,
-//                    WekaSectionizer.PARAM_BINMODELPATH, "resources/wekaModels/binary_SMO.model",
-//                    WekaSectionizer.PARAM_MODELPATH, "resources/wekaModels/postBin_SMO.model");
-//            builder.add( wekaSectionizer );
+        	String template_file = "";
+        	AnalysisEngineDescription templateSectionizer = null;
+            if( pipeline_properties.containsKey( "sectionizer.template_file" ) ){
+            	template_file = pipeline_properties.getProperty( "sectionizer.template_file" );
+            }
+            if (template_file == null || template_file.equals("")) {
+            	mLogger.info( "Loading module 'TemplateSectionizer' with default values" );
+            	templateSectionizer = AnalysisEngineFactory.createEngineDescription(
+            			TemplateSectionizer.class );
+            }else {
+            	mLogger.info( "Loading module 'TemplateSectionizer'  " + template_file );
+                templateSectionizer = AnalysisEngineFactory.createEngineDescription(
+                		TemplateSectionizer.class,
+                        TemplateSectionizer.PARAM_SECTIONTEMPLATES , template_file);
+            }
+            builder.add(templateSectionizer );         
         } else {
-            // TODO - if model files aren't present fall back to a rule-based system
-            // TODO - if no sectionzier is provided, fall back to a single all-unknown section, or similar
-            mLogger.warn( "No known sectionizer provide" );
-        }
+            mLogger.warn( "No known sectionizer provided" );
+       }
 
         ////////////////////////////////////
         // Patient Demographics

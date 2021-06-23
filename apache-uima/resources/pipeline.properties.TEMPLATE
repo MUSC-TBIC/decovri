@@ -28,3 +28,5 @@ py.labs.keyfile =
 py.meds.host = 
 py.meds.port = 
 py.meds.keyfile = 
+
+sectionizer.template_file = 
