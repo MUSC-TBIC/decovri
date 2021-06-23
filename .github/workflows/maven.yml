@@ -38,7 +38,7 @@ jobs:
         key: ${{ runner.os }}-uima-${{ env.UIMA_VERSION }}
         restore-keys: ${{ runner.os }}-uima
     - name: Download Apache UIMA
-      run: if [ ! -d ~/apache-uima ]; then curl -fsSL --output uimaj-${{ env.UIMA_VERSION }}-bin.zip https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.zip && unzip uimaj-${{ env.UIMA_VERSION }}-bin.zip; fi
+      run: if [ ! -d ~/apache-uima ]; then curl -SL --output uimaj-${{ env.UIMA_VERSION }}-bin.zip https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.zip && echo `ls` && echo `pwd`; fi
       working-directory: ~/
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
