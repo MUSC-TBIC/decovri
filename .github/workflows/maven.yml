@@ -101,7 +101,7 @@ jobs:
       if: steps.cache-opennlp-models.outputs.cache-hit != 'true'
       run: |
         mkdir -p ${{ github.workspace }}/apache-uima/resources/openNlpModels
-	cd ${{ github.workspace }}/apache-uima/resources/openNlpModels
+        cd ${{ github.workspace }}/apache-uima/resources/openNlpModels
         curl -Lfs --output 'en-token.bin' 'http://opennlp.sourceforge.net/models-1.5/en-token.bin'
         curl -Lfs --output 'en-pos-maxent.bin' 'http://opennlp.sourceforge.net/models-1.5/en-pos-maxent.bin'
     ################################
