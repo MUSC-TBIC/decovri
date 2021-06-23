@@ -61,21 +61,15 @@ jobs:
     #    path: ~/ConceptMapper
     #    key: ${{ runner.os }}-conceptmapper-${{ env.CONCEPTMAPPER_VERSION }}
     #    restore-keys: ${{ runner.os }}-conceptmapper
-    - name: Download Apache ConceptMapper
-      uses: carlosperate/download-file-action@v1.0.3
-      #if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
-      with:
-        file-url: 'https://downloads.apache.org/uima/uima-addons/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
-        file-name: 'ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
-        location: '$RUNNER_TEMP'
-    - name: Unpack Apache ConceptMapper
+    - name: Download and Unpack Apache ConceptMapper
       #if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
       run: |
+        cd $RUNNER_TEMP
+        ls -l
+        curl -Lfs --output 'ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz' 'https://downloads.apache.org/uima/uima-addons/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
         ls -l
         mkdir ~/ConceptMapper
         cd ~/ConceptMapper
-        ls -l ~/
-        ls -l $RUNNER_TEMP
         tar -zxf $RUNNER_TEMP/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz
     ################################
     ## mvn package
