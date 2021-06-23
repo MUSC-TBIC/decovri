@@ -21,7 +21,8 @@ jobs:
       CONCEPTMAPPER_HOME: ${{ '~/ConceptMapper' }}
       CTAKES_VERSION: ${{ '4.0.0.1' }}
       CTAKES_HOME: ${{ '~/apache-ctakes' }}
-
+      OPENNLP_MODELS_VERSION: ${{ '1.5' }}
+    
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 8
@@ -73,27 +74,49 @@ jobs:
         tar -zxf $RUNNER_TEMP/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz
     ################################
     ## Apache cTAKES
-    #- name: Cache Apache cTAKES
-    #  uses: actions/cache@v2
-    #  id: cache-apache-ctakes
-    #  with:
-    #    path: ~/apache-ctakes
-    #    key: ${{ runner.os }}-ctakes-${{ env.CTAKES_VERSION }}
-    #    restore-keys: ${{ runner.os }}-ctakes
+    - name: Cache Apache cTAKES
+      uses: actions/cache@v2
+      id: cache-apache-ctakes
+      with:
+        path: ~/apache-ctakes
+        key: ${{ runner.os }}-ctakes-${{ env.CTAKES_VERSION }}
+        restore-keys: ${{ runner.os }}-ctakes
     - name: Download and Unpack Apache cTAKES
-      #if: steps.cache-apache-ctakes.outputs.cache-hit != 'true'
+      if: steps.cache-apache-ctakes.outputs.cache-hit != 'true'
       run: |
         cd $RUNNER_TEMP
         curl -Lfs --output 'apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz' 'https://mirror.nodesdirect.com/apache//ctakes/ctakes-${{ env.CTAKES_VERSION }}/apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz'
         tar -zxf apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz
         mv apache-ctakes-${{ env.CTAKES_VERSION }} ~/apache-ctakes
     ################################
+    ## OpenNLP Models
+    #- name: Cache OpenNLP Models
+    #  uses: actions/cache@v2
+    #  id: cache-opennlp-models
+    #  with:
+    #    path: ${{ github.workspace }}/apache-uima/resources/openNlpModels
+    #    key: ${{ runner.os }}-opennlp-models-${{ env.OPENNLP_MODELS_VERSION }}
+    #    restore-keys: ${{ runner.os }}-opennlp-models
+    - name: Download and Unpack OpenNLP Models
+      #if: steps.cache-opennlp-models.outputs.cache-hit != 'true'
+      run: |
+        cd $RUNNER_TEMP
+        ## TODO - can I safely combine these two line pairs?
+        mkdir -p ${{ github.workspace }}/apache-uima/resources/openNlpModels
+        curl -Lfs --output 'en-token.bin' 'http://opennlp.sourceforge.net/models-1.5/en-token.bin'
+        mv en-token.bin ${{ github.workspace }}/apache-uima/resources/openNlpModels/.
+        curl -Lfs --output 'en-pos-maxent.bin' 'http://opennlp.sourceforge.net/models-1.5/en-pos-maxent.bin'
+        mv en-pos-maxent.bin ${{ github.workspace }}/apache-uima/resources/openNlpModels/.
+    ################################
     ## mvn package
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
       working-directory: apache-uima
-    - name: Copy jars
-      run: mkdir ${{ github.workspace }}/staging && cp target/*.jar ${{ github.workspace }}/staging
+    - name: Copy jars and resources
+      run: |
+        mkdir -p ${{ github.workspace }}/staging
+        cp target/*.jar ${{ github.workspace }}/staging
+        cp -a resources ${{ github.workspace }}/staging/.
       working-directory: apache-uima
     - uses: actions/upload-artifact@v2
       with:
