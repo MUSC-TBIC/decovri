@@ -41,8 +41,8 @@ jobs:
       uses: carlosperate/download-file-action@v1.0.3
       id: download-apache-uima
       with:
-        file-url: 'https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.tgz'
-        file-name: 'uimaj-${{ env.UIMA_VERSION }}-bin.tgz'
+        file-url: 'https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
+        file-name: 'uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
         location: '~/'
     - name: Print the file path
       run: echo "The file was downloaded to ${{ steps.download-apache-uima.outputs.file-path }}"
