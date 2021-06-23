@@ -70,7 +70,10 @@ jobs:
         location: '~/'
     - name: Unpack Apache ConceptMapper
       if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
-      run: mkdir ~/ConceptMapper && cd ~/ConceptMapper && tar -zxf '~/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
+      run: |
+        mkdir ~/ConceptMapper
+        cd ~/ConceptMapper
+        tar -zxf ~/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz
     ################################
     ## mvn package
     - name: Build with Maven
