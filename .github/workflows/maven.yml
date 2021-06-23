@@ -27,13 +27,26 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+    - name: Cache Apache UIMA
+      uses: actions/cache@v2
+      with:
+        path: ~/apache-uima
+        env:
+          UIMA_VERSION: ${{ '2.10.4' }}
+          UIMA_HOME: ${{ '~/apache-uima' }}
+        key: ${{ runner.os }}-uima-${{ env.UIMA_VERSION }}
+        restore-keys: ${{ runner.os }}-uima
+    - name: Download Apache UIMA
+      run: if [ ! -d ~/apache-uima ]; then curl -fsSL --output uimaj-${{ env.UIMA_VERSION }}-bin.zip https://downloads.apache.org/uima/uimaj-${{ env.UIMA_VERSION }}/uimaj-${{ env.UIMA_VERSION }}-bin.zip && unzip uimaj-${{ env.UIMA_VERSION }}-bin.zip; fi
+      working-directory: ~/
     - name: Build with Maven
       run: mvn --batch-mode package --file pom.xml
       working-directory: apache-uima
     - name: Copy jars
-      run: mkdir staging && cp target/*.jar staging
+      run: mkdir ${{ github.workspace }}/staging && cp target/*.jar ${{ github.workspace }}/staging
       working-directory: apache-uima
     - uses: actions/upload-artifact@v2
       with:
-        name: Package
-        path: apache-uima/staging
+        ## TODO - pull version number from pom.xml
+        name: decovri_vSNAPSHOT_${{ runner.os }}
+        path: ${{ github.workspace }}/staging
