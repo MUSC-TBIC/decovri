@@ -124,7 +124,7 @@ jobs:
     - name: Build with Maven
       run: |
         mvn --batch-mode package --file pom.xml
-        export BUILD_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "BUILD_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       working-directory: apache-uima
     - name: Copy jars and resources
       run: |
