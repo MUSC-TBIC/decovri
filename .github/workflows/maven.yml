@@ -71,8 +71,10 @@ jobs:
     - name: Unpack Apache ConceptMapper
       if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
       run: |
+        ls -l
         mkdir ~/ConceptMapper
         cd ~/ConceptMapper
+        ls -l ~/
         tar -zxf ~/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz
     ################################
     ## mvn package
