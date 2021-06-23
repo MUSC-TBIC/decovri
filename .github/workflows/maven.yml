@@ -19,6 +19,8 @@ jobs:
       UIMA_HOME: ${{ '~/apache-uima' }}
       CONCEPTMAPPER_VERSION: ${{ '2.10.2' }}
       CONCEPTMAPPER_HOME: ${{ '~/ConceptMapper' }}
+      CTAKES_VERSION: ${{ '4.0.0.1' }}
+      CTAKES_HOME: ${{ '~/apache-ctakes' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -54,23 +56,37 @@ jobs:
       run: tar -zxf '~/uimaj-${{ env.UIMA_VERSION }}-bin.tar.gz'
     ################################
     ## Apache ConceptMapper
-    #- name: Cache Apache ConceptMapper
-    #  uses: actions/cache@v2
-    #  id: cache-conceptmapper
-    #  with:
-    #    path: ~/ConceptMapper
-    #    key: ${{ runner.os }}-conceptmapper-${{ env.CONCEPTMAPPER_VERSION }}
-    #    restore-keys: ${{ runner.os }}-conceptmapper
+    - name: Cache Apache ConceptMapper
+      uses: actions/cache@v2
+      id: cache-conceptmapper
+      with:
+        path: ~/ConceptMapper
+        key: ${{ runner.os }}-conceptmapper-${{ env.CONCEPTMAPPER_VERSION }}
+        restore-keys: ${{ runner.os }}-conceptmapper
     - name: Download and Unpack Apache ConceptMapper
-      #if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
+      if: steps.cache-conceptmapper.outputs.cache-hit != 'true'
       run: |
         cd $RUNNER_TEMP
-        ls -l
         curl -Lfs --output 'ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz' 'https://downloads.apache.org/uima/uima-addons/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz'
-        ls -l
         mkdir ~/ConceptMapper
         cd ~/ConceptMapper
         tar -zxf $RUNNER_TEMP/ConceptMapper-${{ env.CONCEPTMAPPER_VERSION }}-bin.tar.gz
+    ################################
+    ## Apache cTAKES
+    #- name: Cache Apache cTAKES
+    #  uses: actions/cache@v2
+    #  id: cache-apache-ctakes
+    #  with:
+    #    path: ~/apache-ctakes
+    #    key: ${{ runner.os }}-ctakes-${{ env.CTAKES_VERSION }}
+    #    restore-keys: ${{ runner.os }}-ctakes
+    - name: Download and Unpack Apache cTAKES
+      #if: steps.cache-apache-ctakes.outputs.cache-hit != 'true'
+      run: |
+        cd $RUNNER_TEMP
+        curl -Lfs --output 'apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz' 'https://mirror.nodesdirect.com/apache//ctakes/ctakes-${{ env.CTAKES_VERSION }}/apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz'
+        tar -zxf apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz
+        mv apache-ctakes-${{ env.CTAKES_VERSION }} ~/apache-ctakes
     ################################
     ## mvn package
     - name: Build with Maven
