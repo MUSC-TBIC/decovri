@@ -89,6 +89,21 @@ jobs:
         tar -zxf apache-ctakes-${{ env.CTAKES_VERSION }}-bin.tar.gz
         mv apache-ctakes-${{ env.CTAKES_VERSION }} ~/apache-ctakes
     ################################
+    ## Apache cTAKES Models
+    - name: Cache cTAKES Models
+      uses: actions/cache@v2
+      id: cache-ctakes-models
+      with:
+        path: ${{ github.workspace }}/apache-uima/resources/ctakesModels
+        key: ${{ runner.os }}-ctakes-models-${{ env.CTAKES_VERSION }}
+        restore-keys: ${{ runner.os }}-ctakes-models
+    - name: Download and Unpack cTAKES Models
+      if: steps.cache-ctakes-models.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p ${{ github.workspace }}/apache-uima/resources/ctakesModels
+        cd ${{ github.workspace }}/apache-uima/resources/ctakesModels
+        curl -Lfs --output 'sd-med-model.zip' 'https://github.com/apache/ctakes/tree/trunk/ctakes-core-res/src/main/resources/org/apache/ctakes/core/sentdetect/sd-med-model.zip'
+    ################################
     ## OpenNLP Models
     - name: Cache OpenNLP Models
       uses: actions/cache@v2
