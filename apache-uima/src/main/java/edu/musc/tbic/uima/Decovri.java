@@ -297,25 +297,25 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         // Sectionizer
         ///////////////////////////////////////////////////
         if( pipeline_modules.contains( "Template Sectionizer" ) ){
-        	String template_file = "";
-        	AnalysisEngineDescription templateSectionizer = null;
+            String template_file = "";
+            AnalysisEngineDescription templateSectionizer = null;
             if( pipeline_properties.containsKey( "sectionizer.template_file" ) ){
-            	template_file = pipeline_properties.getProperty( "sectionizer.template_file" );
+                template_file = pipeline_properties.getProperty( "sectionizer.template_file" );
             }
             if (template_file == null || template_file.equals("")) {
-            	mLogger.info( "Loading module 'TemplateSectionizer' with default values" );
-            	templateSectionizer = AnalysisEngineFactory.createEngineDescription(
-            			TemplateSectionizer.class );
-            }else {
-            	mLogger.info( "Loading module 'TemplateSectionizer'  " + template_file );
+                mLogger.info( "Loading module 'TemplateSectionizer' with default values" );
                 templateSectionizer = AnalysisEngineFactory.createEngineDescription(
-                		TemplateSectionizer.class,
+                        TemplateSectionizer.class );
+            }else {
+                mLogger.info( "Loading module 'TemplateSectionizer' with " + template_file );
+                templateSectionizer = AnalysisEngineFactory.createEngineDescription(
+                        TemplateSectionizer.class,
                         TemplateSectionizer.PARAM_SECTIONTEMPLATES , template_file);
             }
             builder.add(templateSectionizer );         
         } else {
             mLogger.warn( "No known sectionizer provided" );
-       }
+        }
 
         ////////////////////////////////////
         // Patient Demographics
