@@ -230,6 +230,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if( pipeline_properties.containsKey( "fs.in.text" ) ){
                 sampleDir = pipeline_properties.getProperty( "fs.in.text" );
             }
+            if (sampleDir.startsWith("~")){
+                mLogger.warn("Input directory starts with '~', did you mean to use your full home path?");
+            }
             mLogger.info( "Loading module 'Text Reader' for " + sampleDir );
             collectionReader = CollectionReaderFactory.createReaderDescription(
                     FileSystemCollectionReader.class ,
@@ -600,7 +603,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if( pipeline_properties.containsKey( "fs.out.txt" ) ){
                 txt_output_dir = pipeline_properties.getProperty( "fs.out.txt" );
                 if (txt_output_dir.startsWith("~")){
-                    mLogger.warn("Output directory starts with '~', did you mean to use your full home path?");
+                    mLogger.warn("Output (.txt) directory starts with '~', did you mean to use your full home path?");
                 }
                 mLogger.debug( "Setting annotated txt output directory: " + txt_output_dir );
             }
@@ -638,7 +641,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if( pipeline_properties.containsKey( "fs.out.xmi" ) ){
                 xml_output_dir = pipeline_properties.getProperty( "fs.out.xmi" );
                 if (xml_output_dir.startsWith("~")){
-                    mLogger.warn("Output directory starts with '~', did you mean to use your full home path?");
+                    mLogger.warn("Output directory(.xml) starts with '~', did you mean to use your full home path?");
                 }
                 mLogger.debug( "Setting XML output directory: " + xml_output_dir );
             }
