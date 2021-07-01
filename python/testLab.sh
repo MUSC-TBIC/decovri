@@ -2,4 +2,5 @@
 
 modelPath="models/2019lab_cov.h5"
 portNumber=4454
-python testLab.py $modelPath $portNumber
+inputType="ssl"
+python testLab.py --model $modelPath --port $portNumber --input-type $inputType
