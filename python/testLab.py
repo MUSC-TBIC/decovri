@@ -20,7 +20,7 @@ import argparse
 ##import os
 ##os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-from util.preprocessing import readCoNLLSocket, createMatrices, addCharInformation, addCasingInformation
+from util.preprocessing import readCoNLL, readCoNLLSocket, createMatrices, addCharInformation, addCasingInformation
 from neuralnets.BiLSTM import BiLSTM
 
 import socket
@@ -42,9 +42,17 @@ def initialize_arg_parser():
                          dest = 'modelPath' ,
                          help = 'Path for the model file to load' )
 
-    parser.add_argument( '--port' , required = True ,
+    parser.add_argument( '--port' , default = None,
                          dest = 'portNumber' ,
                          help = 'Port number used for the inbound SSL connection' )
+
+    parser.add_argument('--input-type', default = 'ssl',
+                        choices=['ssl', 'file'],
+                        dest = 'inputType')
+
+    parser.add_argument('--input', default = None,
+                        dest = 'inputPath',
+                        help = 'The file to the file (in CoNLL format) to be read in and annotated by the model')
     ##
     return parser
 
@@ -65,6 +73,152 @@ def init_args( command_line_args ):
     ##
     return args
 
+def ssl_input_type( args ):
+    ##
+    # :: Load the model ::
+    lstmModel = BiLSTM.loadModel(args.modelPath)
+    log.info('model loaded')
+
+    # socket
+    # openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt
+    context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    context.load_cert_chain(certfile="server.crt", keyfile="server.key")
+    sock = socket.socket()
+
+    sock.settimeout(None)
+    # Bind the socket to the address given on the command line
+    server_address = ('', int(args.portNumber))  # was 4444
+    sock.bind(server_address)
+    log.info('starting service_name=testLab with socket_host=%s socket_port=%s' % sock.getsockname())
+    sock.listen(1)
+
+    endMsg = b"--<eosc>--"
+    endMsgE = b"--<eoscE>--"
+
+    inputColumns = {0: "tokens", 1: "begin", 2: "end", 3: "tnum", 4: "snum", 5: "fname"}
+
+    jobEnd = "no"
+
+    while True:
+
+        log.info('waiting for a connection')
+        connection, client_address = sock.accept()
+        connstream = context.wrap_socket(connection, server_side=True)
+        try:
+            log.info('service_name=testLab contacted by client_host=%s on client_port=%s' % client_address)
+            data = b''
+            # endMsgE could get split
+            rd = b''
+
+            while True:
+                rd = connstream.recv(10000)  # was 10000
+                # print ("rd:")
+                # print (rd)
+                # print("data:")
+                # print (data)
+                if rd.strip() == endMsg:
+                    jobEnd = "yes"
+                    break
+
+                data += rd
+
+                if data.strip().endswith(endMsgE):
+                    data = data.replace(endMsgE, b"")
+                    break
+
+                if data.strip() == endMsg:
+                    jobEnd = "yes"
+                    break
+
+            log.info('Tagging...')
+
+            data = data.decode('utf-8')
+
+            # :: Prepare the input ::
+            sentences = readCoNLLSocket(data, inputColumns)
+
+            addCharInformation(sentences)
+
+            addCasingInformation(sentences)
+
+            dataMatrix = createMatrices(sentences, lstmModel.mappings, True)
+
+            # :: Tag the input ::
+            tags = lstmModel.tagSentences(dataMatrix)
+
+            # :: Output to stdout ::
+            output = ''
+            for sentenceIdx in range(len(sentences)):
+                # tokens = sentences[sentenceIdx]['tokens']
+                begins = sentences[sentenceIdx]['begin']
+                ends = sentences[sentenceIdx]['end']
+                # tnums = sentences[sentenceIdx]['tnum']
+                # snums = sentences[sentenceIdx]['snum']
+                # fnames = sentences[sentenceIdx]['fname']
+
+                for tokenIdx in range(len(begins)):  # was tokens changed since tokens removed, but they have the same length
+                    tokenTags = []
+                    for modelName in sorted(tags.keys()):
+                        tokenTags.append(tags[modelName][sentenceIdx][tokenIdx])
+
+                    # output += ("%s\t%s\t%s\t%s\t%s\t%s\tO\t%s\n" % (tokens[tokenIdx], begins[tokenIdx], ends[tokenIdx], tnums[tokenIdx], snums[tokenIdx], fnames[tokenIdx], "\t".join(tokenTags)))
+                    # this should be faster than the original above
+                    # output += tokens[tokenIdx] + "\t"+ begins[tokenIdx] +    "\t"+ ends[tokenIdx] + "\t"+ tnums[tokenIdx] + "\t" + snums[tokenIdx] + "\t"+ fnames[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
+                    # shrunk to run faster
+
+                    # output += tokens[tokenIdx] + "\t"+ begins[tokenIdx] + "\t"+ ends[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
+                    output += begins[tokenIdx] + "\t" + ends[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
+
+                output += "\n"
+
+            # print(output)
+            # print("%s" % output.encode('utf-8'))
+
+            connstream.sendall(output.encode('utf-8'))
+
+        finally:
+            connstream.shutdown(socket.SHUT_RDWR)
+            connstream.close()
+            log.info("connection closed")
+
+        if jobEnd == "yes":
+            break
+
+    log.info("Job done for service_name=testLab")
+
+
+def file_input_type( args ):
+
+    modelPath = args.modelPath
+    inputPath = args.inputPath
+    inputColumns = {0: "tokens"}
+
+    # :: Prepare the input ::
+    sentences = readCoNLL(inputPath, inputColumns)
+    addCharInformation(sentences)
+    addCasingInformation(sentences)
+
+    # :: Load the model ::
+    lstmModel = BiLSTM.loadModel(modelPath)
+
+    dataMatrix = createMatrices(sentences, lstmModel.mappings, True)
+
+    # :: Tag the input ::
+    tags = lstmModel.tagSentences(dataMatrix)
+
+    # :: Output to stdout ::
+    for sentenceIdx in range(len(sentences)):
+        tokens = sentences[sentenceIdx]['tokens']
+
+        for tokenIdx in range(len(tokens)):
+            tokenTags = []
+            for modelName in sorted(tags.keys()):
+                tokenTags.append(tags[modelName][sentenceIdx][tokenIdx])
+
+            print("%s\t%s" % (tokens[tokenIdx], "\t".join(tokenTags)))
+        print("")
+
+
 #############################################
 ## 
 #############################################
@@ -81,113 +235,9 @@ if __name__ == "__main__":
     ##
     args = init_args( sys.argv[ 1: ] )
     ##
-    # :: Load the model ::
-    lstmModel = BiLSTM.loadModel( args.modelPath )
-    log.info( 'model loaded' )
-    
-    #socket
-    # openssl req -newkey rsa:2048 -nodes -keyout server.key -x509 -days 365 -out server.crt
-    context = ssl.create_default_context( ssl.Purpose.CLIENT_AUTH )
-    context.load_cert_chain( certfile = "server.crt" , keyfile = "server.key" )
-    sock = socket.socket()
-    
-    sock.settimeout(None)
-    # Bind the socket to the address given on the command line
-    server_address = ( '' , int( args.portNumber ) ) #was 4444
-    sock.bind(server_address)
-    log.info( 'starting service_name=testLab with socket_host=%s socket_port=%s' % sock.getsockname() )
-    sock.listen(1)
-    
-    endMsg = b"--<eosc>--"
-    endMsgE = b"--<eoscE>--"
-    
-    inputColumns = {0: "tokens", 1: "begin", 2: "end", 3: "tnum", 4: "snum", 5: "fname"}
-    
-    jobEnd = "no"
-    
-    while True:
-    
-        log.info( 'waiting for a connection' )
-        connection, client_address = sock.accept()
-        connstream = context.wrap_socket( connection , server_side = True )
-        try:
-            log.info( 'service_name=testLab contacted by client_host=%s on client_port=%s' % client_address )
-            data = b''
-            #endMsgE could get split
-            rd = b''
-            
-            while True:
-                rd = connstream.recv(10000)        #was 10000
-                #print ("rd:")
-                #print (rd)
-                #print("data:")
-                #print (data)
-                if rd.strip() == endMsg:
-                    jobEnd = "yes"
-                    break
-                
-                data += rd
-                
-                if data.strip().endswith(endMsgE):
-                    data = data.replace(endMsgE, b"")
-                    break
-                
-                if data.strip() == endMsg:
-                    jobEnd = "yes"
-                    break
-            
-            log.info( 'Tagging...' )
-            
-            data = data.decode('utf-8')
-            
-            # :: Prepare the input ::
-            sentences = readCoNLLSocket(data, inputColumns)
-            
-            addCharInformation(sentences)
-            
-            addCasingInformation(sentences)
-            
-            dataMatrix = createMatrices(sentences, lstmModel.mappings, True)
-            
-            # :: Tag the input ::
-            tags = lstmModel.tagSentences(dataMatrix)
-            
-            # :: Output to stdout ::
-            output = ''
-            for sentenceIdx in range(len(sentences)):
-                #tokens = sentences[sentenceIdx]['tokens']
-                begins = sentences[sentenceIdx]['begin']
-                ends = sentences[sentenceIdx]['end']
-                #tnums = sentences[sentenceIdx]['tnum']
-                #snums = sentences[sentenceIdx]['snum']
-                #fnames = sentences[sentenceIdx]['fname']
-                
-                for tokenIdx in range(len(begins)): #was tokens changed since tokens removed, but they have the same length
-                    tokenTags = []
-                    for modelName in sorted(tags.keys()):
-                        tokenTags.append(tags[modelName][sentenceIdx][tokenIdx])
-                
-                    #output += ("%s\t%s\t%s\t%s\t%s\t%s\tO\t%s\n" % (tokens[tokenIdx], begins[tokenIdx], ends[tokenIdx], tnums[tokenIdx], snums[tokenIdx], fnames[tokenIdx], "\t".join(tokenTags)))      
-                    #this should be faster than the original above
-                    #output += tokens[tokenIdx] + "\t"+ begins[tokenIdx] +    "\t"+ ends[tokenIdx] + "\t"+ tnums[tokenIdx] + "\t" + snums[tokenIdx] + "\t"+ fnames[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
-                    #shrunk to run faster
-                    
-                    #output += tokens[tokenIdx] + "\t"+ begins[tokenIdx] + "\t"+ ends[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
-                    output += begins[tokenIdx] + "\t"+ ends[tokenIdx] + "\tO\t" + "\t".join(tokenTags) + "\n"
-                
-                output += "\n"
-            
-            #print output
-            #print("%s" % output.encode('utf-8'))
-            
-            connstream.sendall(output.encode('utf-8'))
-        
-        finally:
-            connstream.shutdown( socket.SHUT_RDWR )
-            connstream.close()
-            log.info( "connection closed" )
-        
-        if jobEnd == "yes":
-            break
-        
-    log.info( "Job done for service_name=testLab" )
+    if (args.inputType == 'ssl'):
+        ssl_input_type(args)
+    elif (args.inputType == 'file'):
+        file_input_type(args)
+    else:
+        log.error("Unknown input type")
