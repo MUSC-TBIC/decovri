@@ -1,6 +1,6 @@
 fit.test_flag = true
 fit.reader = Text Reader
-fit.engines = cTAKES SBD, OpenNLP Tokenizer, Template Sectionizer, Demographics, Symptom Concepts, Labs, Meds, NEN, Attributes, ConText
+fit.engines = cTAKES SBD, OpenNLP Tokenizer, Template Sectionizer, Demographics, Symptom Concepts, NEN, Attributes, ConText
 fit.writers = XML Out
 
 nlp.systems = 
