@@ -1,4 +1,18 @@
 
+DECOVRI (Data Extraction for COVID-19 Related Information) is a
+software application based on natural language processing (NLP) to
+extract COVID-19 related information from clinical text notes. It is
+built on a standard framework (Apache UIMA) and combines components we
+could reuse (“off-the-shelf”) with components adapted from other local
+current research (“rule-based” or “deep learning”, not retrained) and
+a few new custom components.  Nineteen categories of information are
+extracted and include a selection of demographics and social history,
+medical risk factors, laboratory tests, medications, environment risk
+factors and some clinical note structure information (e.g.,
+sections). More details about the application can be found in the
+following publication: 
+
+[to be added]
 
 # Local Customizations Required (But Not Available via git) #
 
@@ -16,12 +30,32 @@ cp src/main/resources/database_connection.properties.TEMPLATE \
 
 ## Model Files ##
 
-- apache-uima/resources/ctakesModels/sd-med-model.zip
+- apache-uima/resources/ctakesModels/
+  - [sd-med-model.zip](https://github.com/apache/ctakes/tree/trunk/ctakes-core-res/src/main/resources/org/apache/ctakes/core/sentdetect/sd-med-model.zip)
+- apache-uima/resources/openNlpModels/
+  - [en-token.bin](http://opennlp.sourceforge.net/models-1.5/en-token.bin)
+  - [en-pos-maxent.bin](http://opennlp.sourceforge.net/models-1.5/en-pos-maxent.bin)
 - python/models/
-    - 2018med_cov.h5
-    - 2019lab_cov.h5
+  - 2018med_cov.h5
+  - 2019lab_cov.h5
+
+The cTAKES model file can be downloaded from GitHub:
+https://github.com/apache/ctakes/tree/trunk/ctakes-core-res/src/main/resources/org/apache/ctakes/core/sentdetect
+
+The openNLP models can be downloaded from SourceForge:
+http://opennlp.sourceforge.net/models-1.5/
+
+The medications and laboratory results/values models can not yet be
+freely downloaded. We are working to generate models from
+appropriately licensed data such that the models can be freely
+released.
 
 ## UMLS Dictionary Files ##
+
+The following UMLS dictionary files need to be downloaded from the
+[UMLS Knowledge
+Sources](https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html)
+page and placed in the specified folder:
 
 - apache-uima/resources/
     - MRCONSO.RRF
