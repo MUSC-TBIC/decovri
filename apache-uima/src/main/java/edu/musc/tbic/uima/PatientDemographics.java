@@ -207,7 +207,10 @@ public class PatientDemographics extends JCasAnnotator_ImplBase {
 				} else if( lexical_variant.equalsIgnoreCase( "indeterminate sex" ) ){
 					concept_code = "0278457";
 				}
-			} else if( concept_prefix.equals( "Patient Height" ) ){
+            } else if( concept_prefix.equals( "Patient Age" ) ){
+                // https://uts.nlm.nih.gov/uts/umls/concept/C0001779
+                concept_code = "0001779";
+            } else if( concept_prefix.equals( "Patient Height" ) ){
                 concept_code = "0005890";
             } else if( concept_prefix.equals( "Patient Weight" ) ){
                 concept_code = "0005910";
@@ -359,15 +362,22 @@ public class PatientDemographics extends JCasAnnotator_ImplBase {
 		///////////////////////////////////////////////////////////////
 		// TODO - should we treat these differently with real snippets?
 		matchPositionalExtractor( aJCas , note_id , docText ,
+                "Patient Age" ,
+                "([0-9]+)[ -](year-old|yo|y.o.)" ,
+                false );
+        matchPositionalExtractor( aJCas , note_id , docText ,
 				"Patient Weight" ,
 				"Weight: ([0-9]+ lbs)" ,
 				false );
-		matchPositionalExtractor( aJCas , note_id , docText ,
+        matchPositionalExtractor( aJCas , note_id , docText ,
 				"Patient Height" ,
 				"Height: +([0-9]+ ft [0-9]+ in)" ,
 				false );
 		matchPositionalExtractor( aJCas , note_id , docText , 
 				"Patient Gender" ,
 				"\\s([a-zA-Z]+) who initiated a virtual visit" );
+        matchPositionalExtractor( aJCas , note_id , docText , 
+                "Patient Gender" ,
+                "\\s(female|gentleman|lady|male|man|woman) (?!who)" );
 	}
 }

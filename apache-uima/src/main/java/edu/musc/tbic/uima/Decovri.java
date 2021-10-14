@@ -56,6 +56,7 @@ import edu.utah.bmi.nlp.context.ConText;
 import edu.utah.bmi.nlp.context.ContextAnnotator;
 
 import edu.musc.tbic.writers.OMOP_CDM_CASConsumer;
+import edu.musc.tbic.writers.AnnotatedSectionWriter;
 import edu.musc.tbic.writers.AnnotatedTextWriter;
 import edu.musc.tbic.writers.XmlWriter;
 
@@ -193,7 +194,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     engine.equals( "Template Sectionizer" ) |
                     engine.equals( "SVM Sectionizer" ) |
 	                engine.equals( "Demographics" ) |
-					engine.equals( "Symptom Concepts" ) |
+                    engine.equals( "Symptom Concepts" ) |
                     engine.equals( "ConText" ) |
                     engine.equals( "Labs" ) |
                     engine.equals( "Meds" ) |
@@ -209,8 +210,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
 		//Nothing special to do here other than make sure it is a valid/known writer
 		for( String writer: pipeline_writers.split( "," ) ){
 			writer = writer.trim();
-			if( writer.equals( "Annotated Text Out" ) |
-				writer.equals( "XML Out" ) |
+			if( writer.equals( "Annotated Section Writer" ) |
+			    writer.equals( "Annotated Text Out" ) |
+	            writer.equals( "XML Out" ) |
 				writer.equals( "OMOP CDM Writer" ) ){
 				pipeline_modules.add( writer );
 			} else if( writer.equals( "" ) ) {
@@ -399,7 +401,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     "file:dict/conceptMapper_symptoms_covid012.xml" );
             builder.add( symptomConceptMapper );
         }
-
+        
         ////////////////////////////////////
         // ConText
         if( pipeline_modules.contains( "ConText" ) ){
@@ -523,6 +525,44 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     AnnotatedTextWriter.PARAM_ERRORDIR , txt_error_dir );
                 	builder.add( txtWriterTest );
         }
+
+        ////////////////////////////////////
+        // Initialize XMI and tsv writer
+        AnalysisEngineDescription txtSectionWriter = null;
+        if( pipeline_modules.contains( "Annotated Section Writer" ) ){
+            // The default values for these output directories are
+            // determined by whether it is a test run or a 
+            // production run...
+            String section_output_dir = "";
+            String section_error_dir = "";
+            if( mTestFlag ){
+                mLogger.info( "Loading module 'txtSectionWriter' for test" );
+                section_output_dir = "/tmp/decovri/test_out";
+                section_error_dir = "/tmp/decovri/test_error";
+            } else {
+                mLogger.info( "Loading module 'txtSectionWriter' for production" );
+                section_output_dir = "/data/software/Decovri/data/out/v" + mVersion;
+                section_error_dir = "/data/software/Decovri/data/out/error";
+            }
+            // ...However, these values are overwritten if set
+            // in the pipeline.properties file
+            if( pipeline_properties.containsKey( "fs.out.sections" ) ){
+                section_output_dir = pipeline_properties.getProperty( "fs.out.sections" );
+                mLogger.debug( "Setting annotated txt output directory: " + section_output_dir );
+            }
+            if( pipeline_properties.containsKey( "fs.error.sections" ) ){
+                section_error_dir = pipeline_properties.getProperty( "fs.error.sections" );
+                mLogger.debug( "Setting annotated txt error directory: " + section_error_dir );
+            }
+            // Then we use these values to construct our writer
+            txtSectionWriter = AnalysisEngineFactory.createEngineDescription(
+                    AnnotatedSectionWriter.class , 
+                    AnnotatedSectionWriter.PARAM_OUTPUTDIR , section_output_dir ,
+                    AnnotatedSectionWriter.PARAM_ERRORDIR , section_error_dir );
+            if( ! mTestFlag ){
+                builder.add( txtSectionWriter );
+            }
+        }
         
         ////////////////////////////////////
         // Initialize XMI and tsv writer
@@ -582,6 +622,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         // writer prior to the XMI writer. This allows the database writer to do
         // any special cleaning and filtering prior to writing out the XMI
         // (usually for evaluation).
+        if( pipeline_modules.contains( "Annotated Section Writer" ) && mTestFlag ){
+            builder.add( txtSectionWriter );
+        }
         if( pipeline_modules.contains( "XML Out" ) && mTestFlag ){
             builder.add( xmlWriter );
         }

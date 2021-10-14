@@ -98,6 +98,7 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	            concept.setLexical_variant( original_concept.getCoveredText() );
 	            // TODO - add section details
 	            // TODO - should we just force UmlsTerm
+	            String basic_level_concept_code = original_concept.getBasicLevelConceptCode();
 	            concept.setNote_nlp_source_concept_id( original_concept.getConceptCode() );
 	            // TODO - pull the snippet from here with the sentence start/end as the maximal spans
                 concept.setSnippet( "" );
@@ -106,7 +107,15 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	            // Initialize temporal and modifiers to empty
 	            concept.setTerm_temporal( "" );
 	            concept.setTerm_modifiers( "" );
-	            // TODO - pass NLP System details through
+	            if( basic_level_concept_code == null ||
+	                basic_level_concept_code.equals( "" ) ){
+                    concept.setTerm_modifiers( "basicLevelConcept=" + 
+                                               original_concept.getConceptCode() );
+                } else {
+                    concept.setTerm_modifiers( "basicLevelConcept=" + 
+                                               basic_level_concept_code );
+                }
+                // TODO - pass NLP System details through
 	            //concept.setNlp_system( mNlpSystem );
 	            concepts.add(concept);
 	            concept.addToIndexes();
