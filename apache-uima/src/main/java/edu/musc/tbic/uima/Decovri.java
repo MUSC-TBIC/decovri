@@ -5,7 +5,9 @@ import java.io.FileWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -325,17 +327,57 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             builder.add( patientDemographics );
         }
 
-        ////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
         // ConceptMapper pipeline adapted from example by Luca Foppiano:
         // - https://github.com/lfoppiano/uima-fit-sample-pipeline
         // - https://github.com/lfoppiano/uima-fit-sample-pipeline/blob/master/src/main/java/org/foppiano/uima/fit/tutorial/Pipeline2.java
         String[] conceptFeatureList = new String[]{ "PreferredTerm" ,
+                "TUI",
                 "ConceptCode","ConceptType" ,
                 "BasicLevelConceptCode","BasicLevelConceptType" };
         String[] conceptAttributeList = new String[]{ "canonical" ,
+                "umlsTui",
                 "conceptCode" , "conceptType" ,
                 "basicLevelConceptCode" , "basicLevelConceptType" };
 
+        ////////////////////////////////////
+        // Dynamically Loaded ConceptMapper Dictionaries
+        for( Entry<Object, Object> entry : pipeline_properties.entrySet() ) {
+            String property_key = (String) entry.getKey();
+            if( property_key.startsWith( "conceptMapper.dictionaryPath" ) ) {
+                String dictionary_name = property_key.substring( "conceptMapper.dictionaryPath".length() );
+                if( dictionary_name.startsWith( "." ) ){
+                    dictionary_name = dictionary_name.substring( 1 );
+                }
+                String dictionary_path = pipeline_properties.getProperty( property_key );
+                //
+                mLogger.info( "Loading module '" + dictionary_name + "ConceptMapper' (" + 
+                              dictionary_path + ")" );
+                AnalysisEngineDescription dynamicConceptMapper = AnalysisEngineFactory.createEngineDescription(
+                        ConceptMapper.class,
+                        "TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
+                        "LanguageID", "en",
+//                        ConceptMapper.PARAM_ORDERINDEPENDENTLOOKUP , "" , // boolean
+//                        ConceptMapper.PARAMVALUE_CONTIGUOUSMATCH , "" , // String
+//                        ConceptMapper.PARAMVALUE_SKIPANYMATCH , "" , // String
+//                        ConceptMapper.PARAMVALUE_SKIPANYMATCHALLOWOVERLAP , "" , // String
+                        ConceptMapper.PARAM_SEARCHSTRATEGY , "ContiguousMatch" , // String
+                        ConceptMapper.PARAM_FINDALLMATCHES , false , // String
+                        ConceptMapper.PARAM_TOKENANNOTATION, conceptMapper_token_type ,
+                        ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
+                        "SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
+                        ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
+                        ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
+                        );
+                createDependencyAndBind( 
+                        dynamicConceptMapper , 
+                        "DictionaryFile" , 
+                        DictionaryResource_impl.class , 
+                        "file:" + dictionary_path );
+                builder.add( dynamicConceptMapper );
+            }
+        }
+        
         ////////////////////////////////////
         // Symptom Concepts
         if( pipeline_modules.contains( "Symptom Concepts" ) ){
@@ -445,136 +487,6 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         		builder.add( relationsAnnotator );
         	}
         }
-//        
-//        ////////////////////////////////////////////////////////////////////////
-//        ////////////////////////////////////
-//        //ConceptMapper Engines
-//        if( pipeline_modules.contains( "Covid Concepts" ) ){
-//        	////////
-//        	// covid
-//            mLogger.info( "Loading module 'covidConceptMapper'" );
-//        	AnalysisEngineDescription covidConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			covidConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_covid_covid010.xml" );
-//        	builder.add( covidConceptMapper );
-//        }
-//
-//        ////////////////////////////////
-//        // Medical Risk  
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) |
-//        		( pipeline_modules.contains( "Heart Disease Concepts" ) & 
-//        				pipeline_modules.contains( "Diabetes Concepts" ) ) ){
-//        	// TODO - split out the dictionaries to be comorbidity-specific
-////        	////////
-////        	// heart disease
-////        	AnalysisEngineDescription heartDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-////        			ConceptMapper.class,
-////        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-////        			"LanguageID", "en",
-////        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-////        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-////        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-////        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-////        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-////        			);
-////        	createDependencyAndBind( 
-////        			heartDiseaseConceptMapper , 
-////        			"DictionaryFile" , 
-////        			DictionaryResource_impl.class , 
-////        			"file:dict/conceptMapper_heartDisease_covid003.xml" );
-////        	////////
-////        	// diabetes
-////        	AnalysisEngineDescription diabetesConceptMapper = AnalysisEngineFactory.createEngineDescription(
-////        			ConceptMapper.class,
-////        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-////        			"LanguageID", "en",
-////        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-////        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-////        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-////        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-////        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-////        			);
-////        	createDependencyAndBind( 
-////        			diabetesConceptMapper , 
-////        			"DictionaryFile" , 
-////        			DictionaryResource_impl.class , 
-////        			"file:dict/conceptMapper_diabetes_covid003.xml" );
-//        	////////
-//        	// diabetes & heart disease
-//            mLogger.info( "Loading module 'diabetesAndHeartDiseaseConceptMapper'" );
-//        	AnalysisEngineDescription diabetesAndHeartDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			diabetesAndHeartDiseaseConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_diabetesAndHeartDisease_covid003.xml" );
-//        	builder.add( diabetesAndHeartDiseaseConceptMapper );
-//        }
-//        ////////
-//        // respiratory disease
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) |
-//        		pipeline_modules.contains( "Respiratory Disease Concepts" ) ){
-//            mLogger.info( "Loading module 'respiratoryDiseaseConceptMapper'" );
-//        	AnalysisEngineDescription respiratoryDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			respiratoryDiseaseConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class ,
-//				//"file:dict/conceptMapper_diabetesAndHeartDisease_covid003.xml" );
-//        			"file:dict/conceptMapper_respiratoryDisease_covid004.xml" );
-//        	builder.add( respiratoryDiseaseConceptMapper );
-//        }
-//        ////////
-//        // all other comorbidities
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) ){
-//            mLogger.info( "Loading module 'comorbiditiesConceptMapper'" );
-//        	AnalysisEngineDescription comorbiditiesConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			comorbiditiesConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_otherComorbidities_covid012.xml" );
-//        	builder.add( comorbiditiesConceptMapper );
-//        }
         
 
         ////////////////////////////////////
