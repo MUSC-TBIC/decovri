@@ -107,18 +107,11 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	            concept.setTerm_exists( "y" );
 	            // Initialize temporal and modifiers to empty
 	            concept.setTerm_temporal( "" );
-	            concept.setTerm_modifiers( "" );
-	            if( basic_level_concept_code == null ||
-	                basic_level_concept_code.equals( "" ) ){
-                    concept.setTerm_modifiers( "basicLevelConcept=" + 
-                                               original_concept.getConceptCode() );
-                } else {
-                    concept.setTerm_modifiers( "basicLevelConcept=" + 
-                                               basic_level_concept_code );
-                }
+	            concept.setTerm_modifiers( String.join( ";" ,
+	                    "basicLevelConcept=" + basic_level_concept_code ) );
                 // TODO - pass NLP System details through
 	            //concept.setNlp_system( mNlpSystem );
-	            concepts.add(concept);
+	            concepts.add( concept );
 	            concept.addToIndexes();
 	        }
 	        //analyze context for concepts in the current sentence
@@ -129,8 +122,6 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	        //move to next sentence
 	        concepts.clear();
 	    }
-//        mLogger.info( "\tSentences: " + String.valueOf( sentenceCount ) );
-//        mLogger.info( "\tConcepts:  " + String.valueOf( conceptCount ) );
 	}
 
 	@Override
@@ -139,7 +130,6 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 		try{
 			// Go through all the sections
 			Collection<NoteSection> sections = JCasUtil.select( cas , NoteSection.class );
-//			mLogger.info( "Sections found: " + String.valueOf( sections.size() ) );
 			int lastSectionBegin = -1;
 			String lastSectionId = "Unknown/Unclassified";
 			for( NoteSection current_section : sections ){

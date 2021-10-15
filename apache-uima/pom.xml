@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>edu.musc.tbic.uima</groupId>
   <artifactId>decovri</artifactId>
-  <version>21.41.4-SNAPSHOT</version>
+  <version>21.41.5-SNAPSHOT</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.8</java.version>
@@ -127,11 +127,11 @@
       <artifactId>ctakes-core</artifactId>
       <version>4.0.0</version>
     </dependency>
-    <!-- <dependency> -->
-    <!--   <groupId>nz.ac.waikato.cms.weka</groupId> -->
-    <!--   <artifactId>tiny-weka</artifactId> -->
-    <!--   <version>3.9.15754</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>edu.utah.bmi.nlp</groupId>
+      <artifactId>fastcontext</artifactId>
+      <version>1.3.2.0</version>
+    </dependency>
 
     <!-- Logging dependencies -->
     <dependency>
