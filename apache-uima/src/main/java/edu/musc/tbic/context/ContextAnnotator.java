@@ -1,4 +1,4 @@
-package edu.utah.bmi.nlp.context;
+package edu.musc.tbic.context;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +77,8 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	    int conceptCount = 0;
 	    for( Sentence current_sentence : sentences ){
 	        if( current_sentence.getBegin() < lastSectionBegin || 
-	                current_sentence.getBegin() >= nextSectionBegin ) {
+	            ( nextSectionBegin > -1 &&
+	              current_sentence.getBegin() >= nextSectionBegin ) ) {
 	            continue;
 	        }
 	        sentenceCount++;
@@ -154,6 +155,12 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
                 lastSectionBegin = current_section.getBegin();
                 lastSectionId = current_section.getSectionId();
 			}
+            // If we didn't find any sections, then process as if the last section
+            // started at character offset 0, thus including all concepts 
+            // in "the current" section.
+            if( sections.size() == 0 ){
+                lastSectionBegin = 0;
+            }
             processSection( cas , 
                     lastSectionId , 
                     lastSectionBegin , 

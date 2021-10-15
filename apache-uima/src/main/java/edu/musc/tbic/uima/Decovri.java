@@ -51,10 +51,8 @@ import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependen
 import edu.musc.tbic.concepts.PyAnnotatorViaSSL;
 import edu.musc.tbic.concepts.CUIAnnotator;
 import edu.musc.tbic.concepts.RelAnnotator;
-
+import edu.musc.tbic.context.ContextAnnotator;
 import edu.utah.bmi.nlp.context.ConText;
-import edu.utah.bmi.nlp.context.ContextAnnotator;
-
 import edu.musc.tbic.writers.OMOP_CDM_CASConsumer;
 import edu.musc.tbic.writers.AnnotatedSectionWriter;
 import edu.musc.tbic.writers.AnnotatedTextWriter;
