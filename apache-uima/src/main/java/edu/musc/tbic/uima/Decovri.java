@@ -5,7 +5,9 @@ import java.io.FileWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,11 +51,11 @@ import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependen
 import edu.musc.tbic.concepts.PyAnnotatorViaSSL;
 import edu.musc.tbic.concepts.CUIAnnotator;
 import edu.musc.tbic.concepts.RelAnnotator;
-
+import edu.musc.tbic.context.ContextAnnotator;
+import edu.musc.tbic.context.FastContextAnnotator;
 import edu.utah.bmi.nlp.context.ConText;
-import edu.utah.bmi.nlp.context.ContextAnnotator;
-
 import edu.musc.tbic.writers.OMOP_CDM_CASConsumer;
+import edu.musc.tbic.writers.AnnotatedSectionWriter;
 import edu.musc.tbic.writers.AnnotatedTextWriter;
 import edu.musc.tbic.writers.XmlWriter;
 
@@ -191,8 +193,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     engine.equals( "Template Sectionizer" ) |
                     engine.equals( "SVM Sectionizer" ) |
 	                engine.equals( "Demographics" ) |
-					engine.equals( "Symptom Concepts" ) |
+                    engine.equals( "Symptom Concepts" ) |
                     engine.equals( "ConText" ) |
+                    engine.equals( "FastContext" ) |
                     engine.equals( "Labs" ) |
                     engine.equals( "Meds" ) |
                     engine.equals( "NEN" ) |
@@ -207,8 +210,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
 		//Nothing special to do here other than make sure it is a valid/known writer
 		for( String writer: pipeline_writers.split( "," ) ){
 			writer = writer.trim();
-			if( writer.equals( "Annotated Text Out" ) |
-				writer.equals( "XML Out" ) |
+			if( writer.equals( "Annotated Section Writer" ) |
+			    writer.equals( "Annotated Text Out" ) |
+	            writer.equals( "XML Out" ) |
 				writer.equals( "OMOP CDM Writer" ) ){
 				pipeline_modules.add( writer );
 			} else if( writer.equals( "" ) ) {
@@ -229,6 +233,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             String sampleDir = "data/input";
             if( pipeline_properties.containsKey( "fs.in.text" ) ){
                 sampleDir = pipeline_properties.getProperty( "fs.in.text" );
+            }
+            if (sampleDir.startsWith("~")){
+                mLogger.warn("Input directory starts with '~', did you mean to use your full home path?");
             }
             mLogger.info( "Loading module 'Text Reader' for " + sampleDir );
             collectionReader = CollectionReaderFactory.createReaderDescription(
@@ -297,21 +304,24 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         // Sectionizer
         ///////////////////////////////////////////////////
         if( pipeline_modules.contains( "Template Sectionizer" ) ){
-            mLogger.info( "Loading module 'TemplateSectionizer'" );
-            AnalysisEngineDescription noteSectionizer = AnalysisEngineFactory.createEngineDescription(
-                    TemplateSectionizer.class );
-            builder.add( noteSectionizer );
-//        } else if( pipeline_modules.contains( "SVM Sectionizer" ) ){
-//            mLogger.info( "Loading Weka-based SVM Sectionizer" );
-//            AnalysisEngineDescription wekaSectionizer = AnalysisEngineFactory.createEngineDescription(
-//                    WekaSectionizer.class,
-//                    WekaSectionizer.PARAM_BINMODELPATH, "resources/wekaModels/binary_SMO.model",
-//                    WekaSectionizer.PARAM_MODELPATH, "resources/wekaModels/postBin_SMO.model");
-//            builder.add( wekaSectionizer );
+            String template_file = "";
+            AnalysisEngineDescription templateSectionizer = null;
+            if( pipeline_properties.containsKey( "sectionizer.template_file" ) ){
+                template_file = pipeline_properties.getProperty( "sectionizer.template_file" );
+            }
+            if (template_file == null || template_file.equals("")) {
+                mLogger.info( "Loading module 'TemplateSectionizer' with default values" );
+                templateSectionizer = AnalysisEngineFactory.createEngineDescription(
+                        TemplateSectionizer.class );
+            }else {
+                mLogger.info( "Loading module 'TemplateSectionizer' with " + template_file );
+                templateSectionizer = AnalysisEngineFactory.createEngineDescription(
+                        TemplateSectionizer.class,
+                        TemplateSectionizer.PARAM_SECTIONTEMPLATES , template_file);
+            }
+            builder.add(templateSectionizer );         
         } else {
-            // TODO - if model files aren't present fall back to a rule-based system
-            // TODO - if no sectionzier is provided, fall back to a single all-unknown section, or similar
-            mLogger.warn( "No known sectionizer provide" );
+            mLogger.warn( "No known sectionizer provided" );
         }
 
         ////////////////////////////////////
@@ -325,17 +335,57 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             builder.add( patientDemographics );
         }
 
-        ////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
         // ConceptMapper pipeline adapted from example by Luca Foppiano:
         // - https://github.com/lfoppiano/uima-fit-sample-pipeline
         // - https://github.com/lfoppiano/uima-fit-sample-pipeline/blob/master/src/main/java/org/foppiano/uima/fit/tutorial/Pipeline2.java
         String[] conceptFeatureList = new String[]{ "PreferredTerm" ,
+                "TUI",
                 "ConceptCode","ConceptType" ,
                 "BasicLevelConceptCode","BasicLevelConceptType" };
         String[] conceptAttributeList = new String[]{ "canonical" ,
+                "umlsTui",
                 "conceptCode" , "conceptType" ,
                 "basicLevelConceptCode" , "basicLevelConceptType" };
 
+        ////////////////////////////////////
+        // Dynamically Loaded ConceptMapper Dictionaries
+        for( Entry<Object, Object> entry : pipeline_properties.entrySet() ) {
+            String property_key = (String) entry.getKey();
+            if( property_key.startsWith( "conceptMapper.dictionaryPath" ) ) {
+                String dictionary_name = property_key.substring( "conceptMapper.dictionaryPath".length() );
+                if( dictionary_name.startsWith( "." ) ){
+                    dictionary_name = dictionary_name.substring( 1 );
+                }
+                String dictionary_path = pipeline_properties.getProperty( property_key );
+                //
+                mLogger.info( "Loading module '" + dictionary_name + "ConceptMapper' (" + 
+                              dictionary_path + ")" );
+                AnalysisEngineDescription dynamicConceptMapper = AnalysisEngineFactory.createEngineDescription(
+                        ConceptMapper.class,
+                        "TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
+                        "LanguageID", "en",
+//                        ConceptMapper.PARAM_ORDERINDEPENDENTLOOKUP , "" , // boolean
+//                        ConceptMapper.PARAMVALUE_CONTIGUOUSMATCH , "" , // String
+//                        ConceptMapper.PARAMVALUE_SKIPANYMATCH , "" , // String
+//                        ConceptMapper.PARAMVALUE_SKIPANYMATCHALLOWOVERLAP , "" , // String
+                        ConceptMapper.PARAM_SEARCHSTRATEGY , "ContiguousMatch" , // String
+                        ConceptMapper.PARAM_FINDALLMATCHES , false , // String
+                        ConceptMapper.PARAM_TOKENANNOTATION, conceptMapper_token_type ,
+                        ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
+                        "SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
+                        ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
+                        ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
+                        );
+                createDependencyAndBind( 
+                        dynamicConceptMapper , 
+                        "DictionaryFile" , 
+                        DictionaryResource_impl.class , 
+                        "file:" + dictionary_path );
+                builder.add( dynamicConceptMapper );
+            }
+        }
+        
         ////////////////////////////////////
         // Symptom Concepts
         if( pipeline_modules.contains( "Symptom Concepts" ) ){
@@ -357,24 +407,6 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     "file:dict/conceptMapper_symptoms_covid012.xml" );
             builder.add( symptomConceptMapper );
         }
-
-        ////////////////////////////////////
-        // ConText
-        if( pipeline_modules.contains( "ConText" ) ){
-            mLogger.info( "Loading module 'ConText'" );
-            String context_log_file = "";
-            if( pipeline_properties.containsKey( "context.log_file" ) ){
-                context_log_file = pipeline_properties.getProperty( "context.log_file" );
-            }
-            AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
-                    ContextAnnotator.class,
-                    ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
-                    ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
-                    ConText.PARAM_CONTEXT_LOG , context_log_file
-                    );
-            builder.add( conText );
-        }
-
 
         ////////////////////////////////////
         // LabPyAnnotator
@@ -445,137 +477,52 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         		builder.add( relationsAnnotator );
         	}
         }
-//        
-//        ////////////////////////////////////////////////////////////////////////
-//        ////////////////////////////////////
-//        //ConceptMapper Engines
-//        if( pipeline_modules.contains( "Covid Concepts" ) ){
-//        	////////
-//        	// covid
-//            mLogger.info( "Loading module 'covidConceptMapper'" );
-//        	AnalysisEngineDescription covidConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			covidConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_covid_covid010.xml" );
-//        	builder.add( covidConceptMapper );
-//        }
-//
-//        ////////////////////////////////
-//        // Medical Risk  
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) |
-//        		( pipeline_modules.contains( "Heart Disease Concepts" ) & 
-//        				pipeline_modules.contains( "Diabetes Concepts" ) ) ){
-//        	// TODO - split out the dictionaries to be comorbidity-specific
-////        	////////
-////        	// heart disease
-////        	AnalysisEngineDescription heartDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-////        			ConceptMapper.class,
-////        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-////        			"LanguageID", "en",
-////        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-////        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-////        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-////        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-////        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-////        			);
-////        	createDependencyAndBind( 
-////        			heartDiseaseConceptMapper , 
-////        			"DictionaryFile" , 
-////        			DictionaryResource_impl.class , 
-////        			"file:dict/conceptMapper_heartDisease_covid003.xml" );
-////        	////////
-////        	// diabetes
-////        	AnalysisEngineDescription diabetesConceptMapper = AnalysisEngineFactory.createEngineDescription(
-////        			ConceptMapper.class,
-////        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-////        			"LanguageID", "en",
-////        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-////        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-////        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-////        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-////        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-////        			);
-////        	createDependencyAndBind( 
-////        			diabetesConceptMapper , 
-////        			"DictionaryFile" , 
-////        			DictionaryResource_impl.class , 
-////        			"file:dict/conceptMapper_diabetes_covid003.xml" );
-//        	////////
-//        	// diabetes & heart disease
-//            mLogger.info( "Loading module 'diabetesAndHeartDiseaseConceptMapper'" );
-//        	AnalysisEngineDescription diabetesAndHeartDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			diabetesAndHeartDiseaseConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_diabetesAndHeartDisease_covid003.xml" );
-//        	builder.add( diabetesAndHeartDiseaseConceptMapper );
-//        }
-//        ////////
-//        // respiratory disease
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) |
-//        		pipeline_modules.contains( "Respiratory Disease Concepts" ) ){
-//            mLogger.info( "Loading module 'respiratoryDiseaseConceptMapper'" );
-//        	AnalysisEngineDescription respiratoryDiseaseConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			respiratoryDiseaseConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class ,
-//				//"file:dict/conceptMapper_diabetesAndHeartDisease_covid003.xml" );
-//        			"file:dict/conceptMapper_respiratoryDisease_covid004.xml" );
-//        	builder.add( respiratoryDiseaseConceptMapper );
-//        }
-//        ////////
-//        // all other comorbidities
-//        if( pipeline_modules.contains( "Medical Risk Concepts" ) ){
-//            mLogger.info( "Loading module 'comorbiditiesConceptMapper'" );
-//        	AnalysisEngineDescription comorbiditiesConceptMapper = AnalysisEngineFactory.createEngineDescription(
-//        			ConceptMapper.class,
-//        			"TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-//        			"LanguageID", "en",
-//        			ConceptMapper.PARAM_TOKENANNOTATION, "uima.tt.TokenAnnotation",
-//        			ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-//        			"SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-//        			ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-//        			ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-//        			);
-//        	createDependencyAndBind( 
-//        			comorbiditiesConceptMapper , 
-//        			"DictionaryFile" , 
-//        			DictionaryResource_impl.class , 
-//        			"file:dict/conceptMapper_otherComorbidities_covid012.xml" );
-//        	builder.add( comorbiditiesConceptMapper );
-//        }
+
+        ////////////////////////////////////////////////////////////////////////
+        // Contextual Attribute Extractors
+        // - These modules pre-suppose all concept extraction has already
+        //   occurred
+        // - TODO : These modules also only target UmlsTerm annotations. We
+        //          need to extend or convert this to support IdentifiedAnnotation
+        //          annotations to pull in SHARPn annotations.
         
+        ////////////////////////////////////
+        // ConText
+        if( pipeline_modules.contains( "ConText" ) ){
+            mLogger.info( "Loading module 'ConText'" );
+            String context_log_file = "";
+            if( pipeline_properties.containsKey( "context.log_file" ) ){
+                context_log_file = pipeline_properties.getProperty( "context.log_file" );
+            }
+            AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
+                    ContextAnnotator.class,
+                    ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
+                    ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
+                    ConText.PARAM_CONTEXT_LOG , context_log_file
+                    );
+            builder.add( conText );
+        }
+        
+        ////////////////////////////////////
+        // ConText
+        if( pipeline_modules.contains( "FastContext" ) ){
+            mLogger.info( "Loading module 'FastContext'" );
+            String ruleFile = null;
+            if( pipeline_properties.containsKey( "fastcontext.rulefile" ) ){
+                ruleFile = pipeline_properties.getProperty( "fastcontext.rulefile" );
+            }
+            AnalysisEngineDescription fastContext = AnalysisEngineFactory.createEngineDescription(
+                    FastContextAnnotator.class,
+                    FastContextAnnotator.PARAM_SENTENCETYPE, sentence_type , 
+//                  FastContextAnnotator.PARAM_CLASSMAP , classMap ,
+                    FastContextAnnotator.PARAM_RULEFILE , ruleFile
+                    );
+            builder.add( fastContext );
+        }
+        
+        // END Contextual Attribute Extractors
+        ////////////////////////////////////////////////////////////////////////
+
 
         ////////////////////////////////////
         // Initialize annotated text writer
@@ -599,6 +546,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // in the pipeline.properties file
             if( pipeline_properties.containsKey( "fs.out.txt" ) ){
                 txt_output_dir = pipeline_properties.getProperty( "fs.out.txt" );
+                if (txt_output_dir.startsWith("~")){
+                    mLogger.warn("Output (.txt) directory starts with '~', did you mean to use your full home path?");
+                }
                 mLogger.debug( "Setting annotated txt output directory: " + txt_output_dir );
             }
             if( pipeline_properties.containsKey( "fs.error.txt" ) ){
@@ -610,6 +560,44 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     AnnotatedTextWriter.PARAM_OUTPUTDIR , txt_output_dir ,
                     AnnotatedTextWriter.PARAM_ERRORDIR , txt_error_dir );
                 	builder.add( txtWriterTest );
+        }
+
+        ////////////////////////////////////
+        // Initialize XMI and tsv writer
+        AnalysisEngineDescription txtSectionWriter = null;
+        if( pipeline_modules.contains( "Annotated Section Writer" ) ){
+            // The default values for these output directories are
+            // determined by whether it is a test run or a 
+            // production run...
+            String section_output_dir = "";
+            String section_error_dir = "";
+            if( mTestFlag ){
+                mLogger.info( "Loading module 'txtSectionWriter' for test" );
+                section_output_dir = "/tmp/decovri/test_out";
+                section_error_dir = "/tmp/decovri/test_error";
+            } else {
+                mLogger.info( "Loading module 'txtSectionWriter' for production" );
+                section_output_dir = "/data/software/Decovri/data/out/v" + mVersion;
+                section_error_dir = "/data/software/Decovri/data/out/error";
+            }
+            // ...However, these values are overwritten if set
+            // in the pipeline.properties file
+            if( pipeline_properties.containsKey( "fs.out.sections" ) ){
+                section_output_dir = pipeline_properties.getProperty( "fs.out.sections" );
+                mLogger.debug( "Setting annotated txt output directory: " + section_output_dir );
+            }
+            if( pipeline_properties.containsKey( "fs.error.sections" ) ){
+                section_error_dir = pipeline_properties.getProperty( "fs.error.sections" );
+                mLogger.debug( "Setting annotated txt error directory: " + section_error_dir );
+            }
+            // Then we use these values to construct our writer
+            txtSectionWriter = AnalysisEngineFactory.createEngineDescription(
+                    AnnotatedSectionWriter.class , 
+                    AnnotatedSectionWriter.PARAM_OUTPUTDIR , section_output_dir ,
+                    AnnotatedSectionWriter.PARAM_ERRORDIR , section_error_dir );
+            if( ! mTestFlag ){
+                builder.add( txtSectionWriter );
+            }
         }
         
         ////////////////////////////////////
@@ -634,6 +622,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // in the pipeline.properties file
             if( pipeline_properties.containsKey( "fs.out.xmi" ) ){
                 xml_output_dir = pipeline_properties.getProperty( "fs.out.xmi" );
+                if (xml_output_dir.startsWith("~")){
+                    mLogger.warn("Output directory(.xml) starts with '~', did you mean to use your full home path?");
+                }
                 mLogger.debug( "Setting XML output directory: " + xml_output_dir );
             }
             if( pipeline_properties.containsKey( "fs.error.xmi" ) ){
@@ -670,6 +661,9 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         // writer prior to the XMI writer. This allows the database writer to do
         // any special cleaning and filtering prior to writing out the XMI
         // (usually for evaluation).
+        if( pipeline_modules.contains( "Annotated Section Writer" ) && mTestFlag ){
+            builder.add( txtSectionWriter );
+        }
         if( pipeline_modules.contains( "XML Out" ) && mTestFlag ){
             builder.add( xmlWriter );
         }

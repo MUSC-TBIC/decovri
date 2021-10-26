@@ -7,6 +7,19 @@ nlp.systems =
 
 fs.in.text = data/test/in/txt
 
+## Default sample availabe under resources/
+sectionizer.template_file = section_templates.tsv
+
+## Dynamically lexicons can be added by uncommenting
+## the below key/value pairs. The third element of the
+## property key needs to be unique. The value is the
+## ConceptMapper dictionary file relative to UIMA data
+## directories (e.g., resources/)
+#conceptMapper.dictionaryPath.dictionaryNameA = dict/conceptMapper_dictA_terms-only.xml
+#conceptMapper.dictionaryPath.dictionaryNameB = dict/conceptMapper_dictB_terms-and-variants.xml
+
+context.log_file =
+
 fs.out.xmi = data/test/out/xmi
 fs.out.txt = data/test/out/txt
 fs.out.tsv = data/test/out/tsv
@@ -20,11 +33,11 @@ fs.error.note_nlp =
 fs.error.note_segments = 
 fs.error.annotated_text = 
 
-context.log_file =
-
 py.labs.host = 
 py.labs.port = 
 py.labs.keyfile = 
 py.meds.host = 
 py.meds.port = 
 py.meds.keyfile = 
+
+sectionizer.template_file = 

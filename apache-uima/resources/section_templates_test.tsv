@@ -1,0 +1,4 @@
+This Virtual Encounter.* any associated images is available in Zipnosis.	Unknown/Unclassified		skip=true
+Date:	Test1		
+MEDICATIONS:	Test3		
+(\*+\s+|\b)COVID-19 \(Coronavirus\) General Information(\s+\*+|\b)	Test2		skip=true
