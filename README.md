@@ -29,7 +29,7 @@ cd ~/bin/decovri
 ## Update this is necessary to match your deployment
 export VERSION=21.43.1
 
-unzip ~/Downloads/decovri_vSNAPSHOT_Linux.zip
+unzip ~/Downloads/decovri_v${VERSION}-SNAPSHOT_Linux.zip
 
 cp resources/pipeline.properties.TEMPLATE \
   resources/pipeline.properties
