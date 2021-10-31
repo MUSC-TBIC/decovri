@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.musc.tbic.omop_cdm.Note_Nlp_TableProperties;
-import edu.utah.bmi.nlp.context.ContextAnnotator;
+import edu.musc.tbic.context.ContextAnnotator;
 import edu.musc.tbic.textspans.TemplateSectionizer;
 
 class ConTextAnnotatorAnnotatorTest {
