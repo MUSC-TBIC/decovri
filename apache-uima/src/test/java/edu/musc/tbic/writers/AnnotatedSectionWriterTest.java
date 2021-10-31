@@ -1,4 +1,4 @@
-package edu.musc.tbic.uima;
+package edu.musc.tbic.writers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,10 +24,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.musc.tbic.omop_cdm.Note_Nlp_TableProperties;
-import edu.musc.tbic.uima.PatientDemographics;
+import edu.musc.tbic.writers.AnnotatedSectionWriter;
 import edu.musc.tbic.textspans.TemplateSectionizer;
 
-class PatientDemographicsTest {
+class AnnotatedSectionWriterTest {
 
     private static String testInputDir = System.getProperty( "user.dir" ) + "/data/test/in/txt";
 
@@ -36,13 +36,13 @@ class PatientDemographicsTest {
     private static ArrayList<Note_Nlp_TableProperties> mAnnotations = null;
     
     // analysis engine descriptor needed for testing
-    private static AnalysisEngineDescription patientDemographics;
+    private static AnalysisEngineDescription annotatedSectionWriter;
 
     @BeforeAll
     public static void beforeAll() throws UIMAException {
-        patientDemographics = AnalysisEngineFactory.createEngineDescription(
-                PatientDemographics.class ,
-                PatientDemographics.PARAM_VERSION , "vUnitTest" );
+        //annotatedSectionWriter = AnalysisEngineFactory.createEngineDescription(
+        //        AnnotatedSectionWriter.class ,
+        //        AnnotatedSectionWriter.PARAM_VERSION , "vUnitTest" );
 
         mJcas = JCasFactory.createJCas();
     }
@@ -54,13 +54,13 @@ class PatientDemographicsTest {
         mAnnotations = new ArrayList<Note_Nlp_TableProperties>();
     }
 
-    public void tagDemographics( String documentText )
+    public void annotatedSectionWriterTest( String documentText )
             throws ResourceInitializationException, UIMAException {
 
         mJcas.setDocumentText( documentText );
 
         // Process jcas
-        SimplePipeline.runPipeline( mJcas , patientDemographics );
+        //SimplePipeline.runPipeline( mJcas , annotatedSectionWriter );
 
         // Collect the annotations
         Collection<Note_Nlp_TableProperties> annot_collection = JCasUtil.select( mJcas , Note_Nlp_TableProperties.class );
@@ -70,7 +70,7 @@ class PatientDemographicsTest {
     }
 
     @Test
-    public void test00003_demographics() {
+    public void test0000() {
         String inputFilename = testInputDir + "/00003_demographics.txt"; 
 
         String contents = "";
@@ -82,23 +82,13 @@ class PatientDemographicsTest {
         } 
 
         try {
-            tagDemographics( contents );
+        	annotatedSectionWriterTest( contents );
         } catch(UIMAException e) {
             e.printStackTrace();
         }
 
         // Check Size
-        assertEquals( 3 , mAnnotations.size() );
-
-        // Age = C0001779
-        assertEquals( "0001779" , mAnnotations.get( 0 ).getNote_nlp_source_concept_id() );
-        assertEquals( "64" , mAnnotations.get( 0 ).getOffset() );
-        // Gender female = C0086287
-        assertEquals( "0086287" , mAnnotations.get( 1 ).getNote_nlp_source_concept_id() );
-        assertEquals( "76" , mAnnotations.get( 1 ).getOffset() );
-        // Patient height = C0005890
-        assertEquals( "0005890" , mAnnotations.get( 2 ).getNote_nlp_source_concept_id() );
-        assertEquals( "195" , mAnnotations.get( 2 ).getOffset() );
+        assertEquals( 0 , mAnnotations.size() );
 
     }
 
