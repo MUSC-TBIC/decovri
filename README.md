@@ -43,6 +43,17 @@ java -cp \
 
 ```
 
+*NOTE*
+
+The cTAKES model file is not correctly automatically deployable.  You
+will need to download the cTAKES src build and find
+`sd-med-model.zip`.  This zip file should be moved (without unzipping
+it) to `resources/ctakesModels` to the replace the version there.
+
+```
+apache-ctakes-4.0.0.1-src/ctakes-core-res/src/main/resources/org/apache/ctakes/core/sentdetect/sd-med-model.zip
+```
+
 ## Building Decovri From Source ##
 
 ### Command Line Build Environment ###
