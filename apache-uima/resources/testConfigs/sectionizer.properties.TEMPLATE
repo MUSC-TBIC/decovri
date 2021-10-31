@@ -1,0 +1,29 @@
+fit.test_flag = true
+fit.reader = Text Reader
+fit.engines = cTAKES SBD, OpenNLP Tokenizer, Template Sectionizer
+fit.writers = XML Out
+
+fs.in.text = $INPUTDIR
+
+## Default sample availabe under resources/
+sectionizer.template_file = $SECTIONFILE
+
+fs.out.xmi = $OUTPUTXMIDIR
+fs.out.txt = data/test/out/txt
+fs.out.tsv = data/test/out/tsv
+fs.out.note_nlp = 
+fs.out.note_segments = 
+fs.out.annotated_text = 
+
+fs.error.xmi = /tmp/decovri/error_xmi
+fs.error.tsv = 
+fs.error.note_nlp = 
+fs.error.note_segments = 
+fs.error.annotated_text = 
+
+py.labs.host = 
+py.labs.port = 
+py.labs.keyfile = 
+py.meds.host = 
+py.meds.port = 
+py.meds.keyfile = 

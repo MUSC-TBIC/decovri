@@ -77,13 +77,20 @@ public class TemplateSectionizer extends JCasAnnotator_ImplBase {
                 String section_type = csvRecord.get( "SectionType" );
                 mSectionTemplateToType.put( template , section_type );
                 int depth = 0;
-                if( ! csvRecord.get( "Depth" ).trim().equals( "" ) ){
-                    depth = Integer.parseInt( csvRecord.get( "Depth" ) );
+                try{
+                    if( ! csvRecord.get( "Depth" ).trim().equals( "" ) ){
+                        depth = Integer.parseInt( csvRecord.get( "Depth" ) );
+                    }
+                    String term_modifiers = (String)csvRecord.get( "Modifiers" );
+                } catch (IllegalArgumentException e1) {
+                    mLogger.debug( "Line for section template '" + template + "' appears to be malformed." );
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
                 }
                 mSectionTemplateToDepth.put( template , depth );
-                String term_modifiers = (String)csvRecord.get( "Modifiers" );
                 mSectionTemplateToModifier.put( template , term_modifiers ); 
-            }   
+            }  
+        
         } catch (FileNotFoundException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
