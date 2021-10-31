@@ -192,7 +192,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     engine.equals( "Template Sectionizer" ) |
                     engine.equals( "SVM Sectionizer" ) |
 	                engine.equals( "Demographics" ) |
-                    engine.equals( "Symptom Concepts" ) |
+                    engine.equals( "Dynamic ConceptMapper" ) |
                     engine.equals( "ConText" ) |
                     engine.equals( "FastContext" ) |
                     engine.equals( "Labs" ) |
@@ -349,62 +349,43 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
 
         ////////////////////////////////////
         // Dynamically Loaded ConceptMapper Dictionaries
-        for( Entry<Object, Object> entry : pipeline_properties.entrySet() ) {
-            String property_key = (String) entry.getKey();
-            if( property_key.startsWith( "conceptMapper.dictionaryPath" ) ) {
-                String dictionary_name = property_key.substring( "conceptMapper.dictionaryPath".length() );
-                if( dictionary_name.startsWith( "." ) ){
-                    dictionary_name = dictionary_name.substring( 1 );
+        if( pipeline_modules.contains( "Dynamic ConceptMapper" ) ){
+            mLogger.info( "Checking for dynamically defined ConceptMapper files" );
+            for( Entry<Object, Object> entry : pipeline_properties.entrySet() ) {
+                String property_key = (String) entry.getKey();
+                if( property_key.startsWith( "conceptMapper.dictionaryPath" ) ) {
+                    String dictionary_name = property_key.substring( "conceptMapper.dictionaryPath".length() );
+                    if( dictionary_name.startsWith( "." ) ){
+                        dictionary_name = dictionary_name.substring( 1 );
+                    }
+                    String dictionary_path = pipeline_properties.getProperty( property_key );
+                    //
+                    mLogger.info( "Loading module '" + dictionary_name + "ConceptMapper' (" + 
+                            dictionary_path + ")" );
+                    AnalysisEngineDescription dynamicConceptMapper = AnalysisEngineFactory.createEngineDescription(
+                            ConceptMapper.class,
+                            "TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
+                            "LanguageID", "en",
+                            //                        ConceptMapper.PARAM_ORDERINDEPENDENTLOOKUP , "" , // boolean
+                            //                        ConceptMapper.PARAMVALUE_CONTIGUOUSMATCH , "" , // String
+                            //                        ConceptMapper.PARAMVALUE_SKIPANYMATCH , "" , // String
+                            //                        ConceptMapper.PARAMVALUE_SKIPANYMATCHALLOWOVERLAP , "" , // String
+                            ConceptMapper.PARAM_SEARCHSTRATEGY , "ContiguousMatch" , // String
+                            ConceptMapper.PARAM_FINDALLMATCHES , false , // String
+                            ConceptMapper.PARAM_TOKENANNOTATION, conceptMapper_token_type ,
+                            ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
+                            "SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
+                            ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
+                            ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
+                            );
+                    createDependencyAndBind( 
+                            dynamicConceptMapper , 
+                            "DictionaryFile" , 
+                            DictionaryResource_impl.class , 
+                            "file:" + dictionary_path );
+                    builder.add( dynamicConceptMapper );
                 }
-                String dictionary_path = pipeline_properties.getProperty( property_key );
-                //
-                mLogger.info( "Loading module '" + dictionary_name + "ConceptMapper' (" + 
-                              dictionary_path + ")" );
-                AnalysisEngineDescription dynamicConceptMapper = AnalysisEngineFactory.createEngineDescription(
-                        ConceptMapper.class,
-                        "TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-                        "LanguageID", "en",
-//                        ConceptMapper.PARAM_ORDERINDEPENDENTLOOKUP , "" , // boolean
-//                        ConceptMapper.PARAMVALUE_CONTIGUOUSMATCH , "" , // String
-//                        ConceptMapper.PARAMVALUE_SKIPANYMATCH , "" , // String
-//                        ConceptMapper.PARAMVALUE_SKIPANYMATCHALLOWOVERLAP , "" , // String
-                        ConceptMapper.PARAM_SEARCHSTRATEGY , "ContiguousMatch" , // String
-                        ConceptMapper.PARAM_FINDALLMATCHES , false , // String
-                        ConceptMapper.PARAM_TOKENANNOTATION, conceptMapper_token_type ,
-                        ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-                        "SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-                        ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-                        ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-                        );
-                createDependencyAndBind( 
-                        dynamicConceptMapper , 
-                        "DictionaryFile" , 
-                        DictionaryResource_impl.class , 
-                        "file:" + dictionary_path );
-                builder.add( dynamicConceptMapper );
             }
-        }
-        
-        ////////////////////////////////////
-        // Symptom Concepts
-        if( pipeline_modules.contains( "Symptom Concepts" ) ){
-            mLogger.info( "Loading module 'symptomConceptMapper'" );
-            AnalysisEngineDescription symptomConceptMapper = AnalysisEngineFactory.createEngineDescription(
-                    ConceptMapper.class,
-                    "TokenizerDescriptorPath", tmpTokenizerDescription.getAbsolutePath(),
-                    "LanguageID", "en",
-                    ConceptMapper.PARAM_TOKENANNOTATION, conceptMapper_token_type ,
-                    ConceptMapper.PARAM_ANNOTATION_NAME, "org.apache.uima.conceptMapper.UmlsTerm",
-                    "SpanFeatureStructure", "uima.tcas.DocumentAnnotation",
-                    ConceptMapper.PARAM_FEATURE_LIST, conceptFeatureList ,
-                    ConceptMapper.PARAM_ATTRIBUTE_LIST, conceptAttributeList
-                    );
-            createDependencyAndBind( 
-                    symptomConceptMapper , 
-                    "DictionaryFile" , 
-                    DictionaryResource_impl.class , 
-                    "file:dict/conceptMapper_symptoms_covid012.xml" );
-            builder.add( symptomConceptMapper );
         }
 
         ////////////////////////////////////

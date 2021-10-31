@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<synonym>
+  <token umlsTui="T047" canonical="Respiration Disorders" conceptType="CUI" conceptCode="C0035204">
+    <variant base="DISEASES OF THE RESPIRATORY SYSTEM"/>
+    <variant base="RESPIRATORY DISORDER"/>
+    <variant base="RESPIRATORY SYSTEM DISORDER"/>
+    <variant base="RESPIRATORY SYSTEM DISORDERS"/>
+    <variant base="Respiration Disorder"/>
+    <variant base="Respiration Disorders"/>
+    <variant base="Respiratory Diseases"/>
+    <variant base="Respiratory Disorder"/>
+    <variant base="Respiratory System Disorder"/>
+    <variant base="Respiratory disease"/>
+    <variant base="Respiratory disorder"/>
+    <variant base="Respiratory system disease"/>
+    <variant base="Respiratory system disorder"/>
+    <variant base="respiratory disease"/>
+    <variant base="respiratory disorder"/>
+    <variant base="respiratory disorders"/>
+    <variant base="respiratory; disorder"/>
+  </token>
+  <token umlsTui="T047" canonical="Asthma" conceptType="CUI" conceptCode="C0004096" basicLevelConceptType="CUI" basicLevelConceptCode="C0035204">
+    <variant base="ASTHMA"/>
+    <variant base="Asthma"/>
+    <variant base="Asthmas"/>
+    <variant base="Asthmatic"/>
+    <variant base="asthma"/>
+    <variant base="asthmatic"/>
+    <variant base="asthmatics"/>
+  </token>
+</synonym>
