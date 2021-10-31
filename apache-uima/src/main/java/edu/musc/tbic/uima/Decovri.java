@@ -259,12 +259,19 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         if( pipeline_modules.contains( "cTAKES SBD" ) ){
             mLogger.info( "Loading cTAKES SentenceDetectorAnnotator" );
             sentence_type = "org.apache.ctakes.typesystem.type.textspan.Sentence";
+            String sentence_model_file = "ctakesModels/sd-med-model.zip";
+            if( pipeline_properties.containsKey( "structure.sentence_model_file" ) ){
+                sentence_model_file = pipeline_properties.getProperty( "structure.sentence_model_file" );
+            }
+            if( pipeline_properties.containsKey( "structure.sentence_type" ) ){
+                sentence_type = pipeline_properties.getProperty( "structure.sentence_type" );
+            }
             AnalysisEngineDescription ctakesSimpleSegments = AnalysisEngineFactory.createEngineDescription(
                     SimpleSegmentAnnotator.class );
             builder.add( ctakesSimpleSegments );
             AnalysisEngineDescription ctakesSentence = AnalysisEngineFactory.createEngineDescription(
                     SentenceDetector.class ,
-                    SentenceDetector.PARAM_SD_MODEL_FILE , "ctakesModels/sd-med-model.zip" );
+                    SentenceDetector.PARAM_SD_MODEL_FILE , sentence_model_file );
             builder.add( ctakesSentence );
 //            mLogger.info( "Loading Sentence deliminator patch" );
 //            AnalysisEngineDescription postSentPatch = AnalysisEngineFactory.createEngineDescription(

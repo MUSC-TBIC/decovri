@@ -7,6 +7,10 @@ nlp.systems =
 
 fs.in.text = data/test/in/txt
 
+## Default value. Change this if you use a differently named file or
+## path.
+## structure.sentence_model_file = ctakesModels/sd-med-model.zip
+
 ## Default sample availabe under resources/
 sectionizer.template_file = resources/section_templates.tsv
 
