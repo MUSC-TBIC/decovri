@@ -1,4 +1,4 @@
-package edu.utah.bmi.nlp.context;
+package edu.musc.tbic.context;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +77,8 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	    int conceptCount = 0;
 	    for( Sentence current_sentence : sentences ){
 	        if( current_sentence.getBegin() < lastSectionBegin || 
-	                current_sentence.getBegin() >= nextSectionBegin ) {
+	            ( nextSectionBegin > -1 &&
+	              current_sentence.getBegin() >= nextSectionBegin ) ) {
 	            continue;
 	        }
 	        sentenceCount++;
@@ -106,18 +107,11 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	            concept.setTerm_exists( "y" );
 	            // Initialize temporal and modifiers to empty
 	            concept.setTerm_temporal( "" );
-	            concept.setTerm_modifiers( "" );
-	            if( basic_level_concept_code == null ||
-	                basic_level_concept_code.equals( "" ) ){
-                    concept.setTerm_modifiers( "basicLevelConcept=" + 
-                                               original_concept.getConceptCode() );
-                } else {
-                    concept.setTerm_modifiers( "basicLevelConcept=" + 
-                                               basic_level_concept_code );
-                }
+	            concept.setTerm_modifiers( String.join( ";" ,
+	                    "basicLevelConcept=" + basic_level_concept_code ) );
                 // TODO - pass NLP System details through
 	            //concept.setNlp_system( mNlpSystem );
-	            concepts.add(concept);
+	            concepts.add( concept );
 	            concept.addToIndexes();
 	        }
 	        //analyze context for concepts in the current sentence
@@ -128,8 +122,6 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 	        //move to next sentence
 	        concepts.clear();
 	    }
-//        mLogger.info( "\tSentences: " + String.valueOf( sentenceCount ) );
-//        mLogger.info( "\tConcepts:  " + String.valueOf( conceptCount ) );
 	}
 
 	@Override
@@ -138,7 +130,6 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
 		try{
 			// Go through all the sections
 			Collection<NoteSection> sections = JCasUtil.select( cas , NoteSection.class );
-//			mLogger.info( "Sections found: " + String.valueOf( sections.size() ) );
 			int lastSectionBegin = -1;
 			String lastSectionId = "Unknown/Unclassified";
 			for( NoteSection current_section : sections ){
@@ -154,6 +145,12 @@ public class ContextAnnotator extends JCasAnnotator_ImplBase {
                 lastSectionBegin = current_section.getBegin();
                 lastSectionId = current_section.getSectionId();
 			}
+            // If we didn't find any sections, then process as if the last section
+            // started at character offset 0, thus including all concepts 
+            // in "the current" section.
+            if( sections.size() == 0 ){
+                lastSectionBegin = 0;
+            }
             processSection( cas , 
                     lastSectionId , 
                     lastSectionBegin , 

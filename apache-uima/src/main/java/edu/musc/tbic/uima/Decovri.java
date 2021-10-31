@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,10 +50,9 @@ import static org.apache.uima.fit.factory.ExternalResourceFactory.createDependen
 import edu.musc.tbic.concepts.PyAnnotatorViaSSL;
 import edu.musc.tbic.concepts.CUIAnnotator;
 import edu.musc.tbic.concepts.RelAnnotator;
-
+import edu.musc.tbic.context.ContextAnnotator;
+import edu.musc.tbic.context.FastContextAnnotator;
 import edu.utah.bmi.nlp.context.ConText;
-import edu.utah.bmi.nlp.context.ContextAnnotator;
-
 import edu.musc.tbic.writers.OMOP_CDM_CASConsumer;
 import edu.musc.tbic.writers.AnnotatedSectionWriter;
 import edu.musc.tbic.writers.AnnotatedTextWriter;
@@ -196,6 +194,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
 	                engine.equals( "Demographics" ) |
                     engine.equals( "Symptom Concepts" ) |
                     engine.equals( "ConText" ) |
+                    engine.equals( "FastContext" ) |
                     engine.equals( "Labs" ) |
                     engine.equals( "Meds" ) |
                     engine.equals( "NEN" ) |
@@ -407,24 +406,6 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                     "file:dict/conceptMapper_symptoms_covid012.xml" );
             builder.add( symptomConceptMapper );
         }
-        
-        ////////////////////////////////////
-        // ConText
-        if( pipeline_modules.contains( "ConText" ) ){
-            mLogger.info( "Loading module 'ConText'" );
-            String context_log_file = "";
-            if( pipeline_properties.containsKey( "context.log_file" ) ){
-                context_log_file = pipeline_properties.getProperty( "context.log_file" );
-            }
-            AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
-                    ContextAnnotator.class,
-                    ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
-                    ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
-                    ConText.PARAM_CONTEXT_LOG , context_log_file
-                    );
-            builder.add( conText );
-        }
-
 
         ////////////////////////////////////
         // LabPyAnnotator
@@ -495,7 +476,52 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         		builder.add( relationsAnnotator );
         	}
         }
+
+        ////////////////////////////////////////////////////////////////////////
+        // Contextual Attribute Extractors
+        // - These modules pre-suppose all concept extraction has already
+        //   occurred
+        // - TODO : These modules also only target UmlsTerm annotations. We
+        //          need to extend or convert this to support IdentifiedAnnotation
+        //          annotations to pull in SHARPn annotations.
         
+        ////////////////////////////////////
+        // ConText
+        if( pipeline_modules.contains( "ConText" ) ){
+            mLogger.info( "Loading module 'ConText'" );
+            String context_log_file = "";
+            if( pipeline_properties.containsKey( "context.log_file" ) ){
+                context_log_file = pipeline_properties.getProperty( "context.log_file" );
+            }
+            AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
+                    ContextAnnotator.class,
+                    ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
+                    ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
+                    ConText.PARAM_CONTEXT_LOG , context_log_file
+                    );
+            builder.add( conText );
+        }
+        
+        ////////////////////////////////////
+        // ConText
+        if( pipeline_modules.contains( "FastContext" ) ){
+            mLogger.info( "Loading module 'FastContext'" );
+            String ruleFile = null;
+            if( pipeline_properties.containsKey( "fastcontext.rulefile" ) ){
+                ruleFile = pipeline_properties.getProperty( "fastcontext.rulefile" );
+            }
+            AnalysisEngineDescription fastContext = AnalysisEngineFactory.createEngineDescription(
+                    FastContextAnnotator.class,
+                    FastContextAnnotator.PARAM_SENTENCETYPE, sentence_type , 
+//                  FastContextAnnotator.PARAM_CLASSMAP , classMap ,
+                    FastContextAnnotator.PARAM_RULEFILE , ruleFile
+                    );
+            builder.add( fastContext );
+        }
+        
+        // END Contextual Attribute Extractors
+        ////////////////////////////////////////////////////////////////////////
+
 
         ////////////////////////////////////
         // Initialize annotated text writer

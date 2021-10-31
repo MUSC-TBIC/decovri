@@ -1,18 +1,82 @@
 
+[![Java Build on Stable](https://github.com/MUSC-TBIC/decovri/actions/workflows/maven.yml/badge.svg?branch=stable)](https://github.com/MUSC-TBIC/decovri/actions/workflows/maven.yml)
+
+[![Java Build on Develop](https://github.com/MUSC-TBIC/decovri/actions/workflows/maven.yml/badge.svg?branch=develop)](https://github.com/MUSC-TBIC/decovri/actions/workflows/maven.yml)
+
 DECOVRI (Data Extraction for COVID-19 Related Information) is a
 software application based on natural language processing (NLP) to
-extract COVID-19 related information from clinical text notes. It is
-built on a standard framework (Apache UIMA) and combines components we
-could reuse (“off-the-shelf”) with components adapted from other local
-current research (“rule-based” or “deep learning”, not retrained) and
-a few new custom components.  Nineteen categories of information are
-extracted and include a selection of demographics and social history,
-medical risk factors, laboratory tests, medications, environment risk
-factors and some clinical note structure information (e.g.,
-sections). More details about the application can be found in the
-following publication: 
+extract COVID-19 related information from clinical text notes.
 
-[to be added]
+It is built on a standard framework (Apache UIMA) and combines
+components we could reuse ("off-the-shelf") with components adapted
+from other local current research ("rule-based" or "deep learning",
+not retrained) and a few new custom components.
+
+Nineteen categories of information are extracted and include a
+selection of demographics and social history, medical risk factors,
+laboratory tests, medications, environment risk factors and some
+clinical note structure information (e.g., sections).
+
+# Installation #
+## Using the Pre-Compiled .jar ##
+
+```
+
+mkdir ~/bin/decovri
+
+cd ~/bin/decovri
+
+## Update this is necessary to match your deployment
+export VERSION=21.43.1
+
+unzip ~/Downloads/decovri_v${VERSION}-SNAPSHOT_Linux.zip
+
+cp resources/pipeline.properties.TEMPLATE \
+  resources/pipeline.properties
+
+export CONCEPTMAPPER_HOME="/path/to/ConceptMapper-2.10.2"
+
+java -cp \
+  resources:target/decovri-${VERSION}-SNAPSHOT-standalone.jar:${CONCEPTMAPPER_HOME}/lib:${CONCEPTMAPPER_HOME}/bin \
+  edu.musc.tbic.uima.Decovri \
+    --pipeline-properties pipeline-demo.properties
+
+```
+
+## Building Decovri From Source ##
+
+### Command Line Build Environment ###
+
+```
+export JAVA_HOME=/path/to/jdk1.8.0_131.jdk/Contents/Home
+
+export UIMA_HOME=/path/to/apache-uima-2.9.0
+
+export PATH=$PATH:$UIMA_HOME/bin
+
+export CTAKES_HOME="/path/to/apache-ctakes-4.0.0"
+
+export CONCEPTMAPPER_HOME="/path/to/ConceptMapper-2.10.2"
+
+export PIPELINE_ROOT=/path/to/decovri/apache-uima
+
+export UIMA_CLASSPATH=${PIPELINE_ROOT}/target/classes
+export UIMA_CLASSPATH=$UIMA_CLASSPATH:${PIPELINE_ROOT}/lib
+export UIMA_CLASSPATH=${UIMA_CLASSPATH}:${CONCEPTMAPPER_HOME}/lib
+export UIMA_CLASSPATH=${UIMA_CLASSPATH}:${CONCEPTMAPPER_HOME}/src
+export UIMA_CLASSPATH=${UIMA_CLASSPATH}:${CTAKES_HOME}/lib:${CTAKES_HOME}/resources
+export UIMA_CLASSPATH=${UIMA_CLASSPATH}:${PIPELINE_ROOT}/resources
+
+export UIMA_DATAPATH=${PIPELINE_ROOT}/resources
+
+export UIMA_JVM_OPTS="-Xms128M -Xmx2G"
+
+cd ${PIPELINE_ROOT}
+
+mvn package
+
+```
+
 
 # Local Customizations Required (But Not Available via git) #
 
@@ -199,3 +263,6 @@ keytool -import \
   -keystore ${SERVER_NAME}Keystore.jks
 
 ```
+
+# Contributing #
+# License #

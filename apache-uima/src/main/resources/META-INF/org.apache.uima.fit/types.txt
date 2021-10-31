@@ -2,6 +2,7 @@ classpath*:desc/types/BaseToken.xml
 classpath*:desc/types/Note_Nlp_TableProperties.xml
 classpath*:desc/types/Note_TableProperties.xml
 classpath*:desc/types/NoteSection.xml
+classpath*:desc/types/Segment.xml
 classpath*:desc/types/Sentence.xml
 classpath*:desc/types/SourceDocumentInformation.xml
 classpath*:desc/types/TokenAnnotation.xml
