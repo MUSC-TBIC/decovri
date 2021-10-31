@@ -1,11 +1,29 @@
 fit.test_flag = true
 fit.reader = Text Reader
-fit.engines = cTAKES SBD, OpenNLP Tokenizer, Template Sectionizer, Demographics, Symptom Concepts, NEN, Attributes, ConText
+fit.engines = cTAKES SBD, OpenNLP Tokenizer, Template Sectionizer, Demographics, Dynamic ConceptMapper, NEN, Attributes, FastContext
 fit.writers = XML Out
 
 nlp.systems = 
 
 fs.in.text = data/test/in/txt
+
+## Default value. Change this if you use a differently named file or
+## path.
+## structure.sentence_model_file = ctakesModels/sd-med-model.zip
+
+## Default sample availabe under resources/
+sectionizer.template_file = resources/section_templates.tsv
+
+## Dynamically lexicons can be added by uncommenting
+## the below key/value pairs. The third element of the
+## property key needs to be unique. The value is the
+## ConceptMapper dictionary file relative to UIMA data
+## directories (e.g., resources/)
+conceptMapper.dictionaryPath.symptomsDemo = dict/conceptMapper_symptoms_demo.xml
+conceptMapper.dictionaryPath.diseasesDemo = dict/conceptMapper_diseases_demo.xml
+#conceptMapper.dictionaryPath.dictionaryNameB = dict/conceptMapper_dictB_terms-and-variants.xml
+
+context.log_file =
 
 fs.out.xmi = data/test/out/xmi
 fs.out.txt = data/test/out/txt
@@ -19,8 +37,6 @@ fs.error.tsv =
 fs.error.note_nlp = 
 fs.error.note_segments = 
 fs.error.annotated_text = 
-
-context.log_file =
 
 py.labs.host = 
 py.labs.port = 

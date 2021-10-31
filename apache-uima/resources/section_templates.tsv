@@ -1,92 +1,542 @@
-This Virtual Encounter.* any associated images is available in Zipnosis.	Unknown/Unclassified		skip=true
-Date:	Date/Time		
-Clinician:	Providers		
-Clinician NPI:	Providers		
-Providers:	Providers		
-Patient:	Patient information/Demographics		
-Patient DOB:	Patient information/Demographics		
-Patient Address:	Patient information/Demographics		
-Patient Phone:	Patient information/Demographics		
-Patient Protocol:	Administrative/Formatting		
-			
-Patient Summary:	Present illness		
-When\s+asked\s+the\s+question\s+\"Are you a current patient at MUSC Health?	Subsection	1	skip=true
-Reason for virtual visit as reported by the patient \(free-text\):	Subsection	1	
+(\*+\s+|\b)COVID-19 \(Coronavirus\) General Information(\s+\*+|\b)	Unknown/Unclassified		skip=true
+- DVT/PE:	Unknown/Unclassified		
+----------------------	Unknown/Unclassified		
+--------------Medications-------	Unknown/Unclassified		
+-EKG \(ED\):	Unknown/Unclassified		
+-TOB:	Unknown/Unclassified		
+=+ Allergies =+	Unknown/Unclassified		
+=+ HealthMaintenance =+	Unknown/Unclassified		
+=+ Medications =+	Unknown/Unclassified		
+=+ Preceptor's Note =+	Unknown/Unclassified		
+=+ Problems =+	Unknown/Unclassified		
 A synchronous visit is necessary because the patient reported the\s+following abnormal symptoms:	Present illness		
-Symptom details	Present illness		
-Nasal secretions:	Subsection	1	
-Cough:	Subsection	1	
-Sore throat:	Subsection	1	
-Temperature:	Subsection	1	
-Wheezing:	Subsection	1	
-Headache:	Subsection	1	
-Precipitating events	Present illness		
-			
-Pertinent COVID-19 \(Coronavirus\) information	Present illness		
-Countries or locations traveled as reported by the patient \(free\s+text\):	Present illness		
-Triage Point\(s\) temporarily suspended for COVID-19 \(Coronavirus\)\s+screening	Present illness		
-Pertinent medical history	Present illness		
-Weight:	Subsection	1	
-Height:	Subsection	1	
+A+P	Unknown/Unclassified		
+A/P:?	Unknown/Unclassified		
+A:	Unknown/Unclassified		
+Abuse/DV history:	Unknown/Unclassified		
+Active Medications	Unknown/Unclassified		
+Activity/Exercise:	Unknown/Unclassified		
+Additional Clinician Notes:	Follow-up/Instructions		
 Additional health information pertinent to this virtual visit as\s+reported by the patient \(free text\):	Subsection	1	
 Additional information as reported by the patient .free text.:	Subsection	1	
-MEDICATIONS:	Medications		
-ALLERGIES:	Allergies		
-Clinician Response:	Follow-up/Instructions		skip=true
-Medication information	Medications		
-I am prescribing:	Medications		
-Self care	Follow-up/Instructions		skip=true
-(\*+\s+|\b)COVID-19 \(Coronavirus\) General Information(\s+\*+|\b)	Unknown/Unclassified		skip=true
-How can I protect myself and others from the COVID-19\s+\(Coronavirus\)?	Follow-up/Instructions		skip=true
-Self-monitoring	Follow-up/Instructions		skip=true
-Steps to help prevent the spread of COVID-19 \(Coronavirus\) if you\s+are sick	Follow-up/Instructions		skip=true
-Do I need to be tested for COVID-19 \(Coronavirus\)?	Follow-up/Instructions		skip=true
-Diagnosis:	Diagnoses		
-Diagnosis ICD:	Diagnoses		
-Follow up instructions:	Follow-up/Instructions		
-Got Your Flu Shot Yet.*the flu viruses expected to be circulating in the community.	Follow-up/Instructions	1	skip=true
-Thank you for using Virtual Urgent Care; In response to the recent COVID-19.*for 14 days or until testing is complete.	Follow-up/Instructions	1	skip=true
-Triage Notes:	Follow-up/Instructions		
-Additional Clinician Notes:	Follow-up/Instructions		
-Synchronous Triage:	Administration		
-Prescription:	Medications		
-Refills:	Subsection	1	
-Refill as needed:	Subsection	1	
-Allow substitutions:	Subsection	1	
-Pharmacy:	Subsection	1	
-			
-Addendum:	Addendum		
-Advance directive/Code:	Advance directive/Code		
-Assessment/Plan:	Assessment/Plan		
-Assessment:	Assessment		
-Plan:	Plan		
-Chief complaint:	Chief complaint		
-Complications:	Complications		
-Consultations:	Consultations		
-Diagnoses:	Diagnoses		
+Address:	Unknown/Unclassified		
+Admission Date/Time:	Unknown/Unclassified		
 Admission diagnoses:	Admission diagnoses		
+Admission medications:?	Admission medications		
+Admission Note - Attending/PCP	Unknown/Unclassified		
+Admit Note	Unknown/Unclassified		
+Admitting Intern:	Unknown/Unclassified		
+Admitting JAR:	Unknown/Unclassified		
+Admitting Physician:	Unknown/Unclassified		
+Admitting Service:	Unknown/Unclassified		
+Advance directive/Code:	Advance directive/Code		
+Advanced Directives/HC Proxy:	Unknown/Unclassified		
+Adverse Medication Reactions:	Unknown/Unclassified		
+Alcohol/tobacco/substance history:	Unknown/Unclassified		
+All Allergies Reviewed	Allergies		
+All:	Allergies		
+Allergies/Adverse Reactions:?	Allergies		
+Allergies:	Allergies		
+Allergy:	Allergies		
+Allow substitutions:	Subsection	1	
+Alls -	Allergies		
+ANC Unit #:	Unknown/Unclassified		
+Ancillary Studies:	Unknown/Unclassified		
+Anesthetic History:	Unknown/Unclassified		
+Annual Physical Exam.	Unknown/Unclassified		
+Appointments:	Unknown/Unclassified		
+ASS:	Unknown/Unclassified		
+Assessment:?	Assessment		
+ASSESSMENT & PLAN	Assessment/Plan		
+Assessment -	Assessment		
+ASSESSMENT AND MEDICAL DECISION MAKING:	Assessment		
+Assessment and Plan	Assessment/Plan		
+Assessment and Recommendations:	Assessment/Plan		
+Assessment ?/ ?Plan:?	Assessment/Plan		
+Assessment/Recommendations:	Assessment/Plan		
+Assessment:	Assessment		
+Att:	Unknown/Unclassified		
+Attending Admission Note	Unknown/Unclassified		
+Attending MD Notes:	Unknown/Unclassified		
+Attending Note	Unknown/Unclassified		
+Attending note:	Unknown/Unclassified		
+Attending Physicians?:	Providers		
+Attending Proc Statement:A	Unknown/Unclassified		
+Attending Surgeon Reassessment Note:	Unknown/Unclassified		
+Attending/Nurse Practitioners\(s\)	Unknown/Unclassified		
+Attending:	Providers		
+Background:	Unknown/Unclassified		
+BIRTH HISTORY:	Unknown/Unclassified		
+Brief history of current health status/co-morbidities:	Unknown/Unclassified		
+Brief History:	Unknown/Unclassified		
+Cardiogram:	Unknown/Unclassified		
+Cardiologist:	Unknown/Unclassified		
+Cards:	Unknown/Unclassified		
+CATH DATA:	Unknown/Unclassified		
+CC ?/ ?HPI:	Chief complaint		
+CC/ID:	Chief complaint		
+CC/RFA:	Chief complaint		
+CC:	Chief complaint		
+CCU Course/Plan	Unknown/Unclassified		
+CCU Course:	Unknown/Unclassified		
+Change in therapies and Renewals	Unknown/Unclassified		
+Changes to Allergies	Unknown/Unclassified		
+Changes to Medications this visit	Unknown/Unclassified		
+Chief complaint:	Chief complaint		
+Chief PRS:	Unknown/Unclassified		
+CLINIC:	Unknown/Unclassified		
+CLINICAL IMPRESSION:	Unknown/Unclassified		
+Clinician NPI:	Providers		
+Clinician Response:	Follow-up/Instructions		skip=true
+Clinician:	Providers		
+Code Status:	Unknown/Unclassified		
+Code status:	Unknown/Unclassified		
+Code:	Unknown/Unclassified		
+COLLINGSWORTH GENERAL HOSPITAL	Unknown/Unclassified		
+Comparison:	Unknown/Unclassified		
+Complications:	Complications		
+Comprehensive physical.	Unknown/Unclassified		
+CONCERNS:	Unknown/Unclassified		
+CONCLUSIONS	Unknown/Unclassified		
+CONDITION AT THE TIME OF DISPOSITION:	Unknown/Unclassified		
+Condition on Discharge	Unknown/Unclassified		
+CONDITION:	Unknown/Unclassified		
+CONSTITUTIONAL:	Unknown/Unclassified		
+Consult Question/Request:	Unknown/Unclassified		
+CONSULTATIONS \(including PCP\):	Unknown/Unclassified		
+Consultations:	Consultations		
+Consulted by:	Providers		
+CONTACT:	Unknown/Unclassified		
+Cough:	Subsection	1	
+Countries or locations traveled as reported by the patient \(free\s+text\):	Present illness		
+Course at the outside hospital-	Unknown/Unclassified		
+Course in ED:	Unknown/Unclassified		
+Critical care time:	Unknown/Unclassified		
+CT:	Unknown/Unclassified		
+CURRENT ISSUES:	Unknown/Unclassified		
+Current medication list:	Medications		
+Current Medications	Medications		
+CURRENT MEDICATIONS \(updated\)	Medications		
+Current Meds:	Medications		
+CV:	Unknown/Unclassified		
+CXR	Unknown/Unclassified		
+CXR FINDINGS:	Unknown/Unclassified		
+CXR: see Data section	Unknown/Unclassified		
+D/W	Unknown/Unclassified		
+D/w	Unknown/Unclassified		
+DATA	Unknown/Unclassified		
+Data	Unknown/Unclassified		
+Data Review:	Unknown/Unclassified		
+Data \(laboratory and radiographs\)	Unknown/Unclassified		
+DATA:	Unknown/Unclassified		
+Data:	Unknown/Unclassified		
+Date and Time of Consultation:	Date/Time		
+Date and Time:	Date/Time		
+Date of Admission to PCH:	Date/Time		
+Date of Admission to WGH:	Date/Time		
+Date of Admission:	Date/Time		
+Date of admit:	Date/Time		
+Date of birth:	Date/Time		
+Date of consult:	Date/Time		
+Date of Consultation:	Date/Time		
+Date of Evaluation:	Date/Time		
+Date of note:	Date/Time		
+Date of Service:	Date/Time		
+Date of this kidney transplant:	Date/Time		
+Date of visit-	Date/Time		
+Date of Visit:	Date/Time		
+Date this visit:	Date/Time		
+Date/Time of Encounter:	Date/Time		
+Date/Time of Visit:	Date/Time		
+Date/Time:	Date/Time		
+Date:	Date/Time		
+DD:	Unknown/Unclassified		
+DECISION MAKING AND EMERGENCY DEPARTMENT COURSE:	Unknown/Unclassified		
+DIABETES SURVELLIANCE AND MANAGEMENT:	Unknown/Unclassified		
+Diagnoses:	Diagnoses		
+Diagnosis ICD:	Diagnoses		
+Diagnosis/Treatment Summary:	Diagnoses		
+Diagnosis:	Diagnoses		
+Diagnostic Studies:	Unknown/Unclassified		
+DIAGNOSTIC CONCLUSIONS/OVERALL SUMMARY:	Unknown/Unclassified		
+Dictated By:	Providers		
+Dictated on:	Date/Time		
+Diet:	Unknown/Unclassified		
 Discharge diagnoses:	Discharge diagnoses		
-Pre-operative diagnoses:	Pre-operative diagnoses		
-Post-operative diagnoses:	Post-operative diagnoses		
-Family history:	Family history		
-Follow-up/Instructions:	Follow-up/Instructions		
-Hospital course:	Hospital course		
-Immunizations:	Immunizations		
-Investigations/Results:	Investigations/Results		
-Laboratory tests:	Laboratory tests		
-Radiology:	Radiology		
-Pathology:	Pathology		
-Admission medications:	Admission medications		
 Discharge medications:	Discharge medications		
+DISCHARGE SUMMARY	Unknown/Unclassified		
+Discharge Time:	Date/Time		
+DISPO:	Unknown/Unclassified		
+Disposition	Unknown/Unclassified		
+DISPOSITION \(including condition on discharge\):	Unknown/Unclassified		
+DISPOSITION \(including condition upon discharge\):	Unknown/Unclassified		
+DISPOSITION:	Unknown/Unclassified		
+Disposition:	Unknown/Unclassified		
+Do I need to be tested for COVID-19 \(Coronavirus\)?	Follow-up/Instructions		skip=true
+DOA:	Date/Time		
+DOB:	Date/Time		
+Document Status:	Unknown/Unclassified		
+DOS:	Unknown/Unclassified		
+DOV:	Unknown/Unclassified		
+Drug History:	Unknown/Unclassified		
+DT:	Unknown/Unclassified		
+DV:	Unknown/Unclassified		
+DX Tests Ordered:	Unknown/Unclassified		
+Eating habits:	Unknown/Unclassified		
+Echocardiogram:	Unknown/Unclassified		
+ED Course:	Unknown/Unclassified		
+EKG:	Unknown/Unclassified		
+EMERGENCY DEPARTMENT COURSE:	Unknown/Unclassified		
+ESRD Attending:	Unknown/Unclassified		
+EtOH:	Unknown/Unclassified		
+Evaluation of treatment of:	Unknown/Unclassified		
+EXAM NAD	Unknown/Unclassified		
+Exam on admission:	Unknown/Unclassified		
+Exam:	Unknown/Unclassified		
+Examination:	Unknown/Unclassified		
+Exercise:	Unknown/Unclassified		
+EXT:	Unknown/Unclassified		
+F/U	Unknown/Unclassified		
+Fam Hx -	Family history		
+Fam ?Hx:	Family history		
+Family / Social History	Family history		
+Family and social history	Family history		
+Family history ?:?	Family history		
+Family history.	Family history		
+Family Hx:	Family history		
+Family weight hx:	Family history		
+Family/social History	Family history		
+Family:	Family history		
+Famiy History:	Family history		
+Fellow/NP	Unknown/Unclassified		
+Fellow:	Unknown/Unclassified		
+FEN:	Unknown/Unclassified		
+FH Uncoded Information:	Family history		
+FH/SH:	Family history		
+FH:	Family history		
+FHC Unit #:	Unknown/Unclassified		
+FHx:?	Family history		
+Financial/insurance issues:	Unknown/Unclassified		
+Findings:	Unknown/Unclassified		
+FMH/SH:	Unknown/Unclassified		
+Follow up instructions:	Follow-up/Instructions		
+FOLLOW-UP VISIT:	Unknown/Unclassified		
+Follow-up/Instructions:	Follow-up/Instructions		
+Follow-up:	Unknown/Unclassified		
+Foot:	Unknown/Unclassified		
+FPM#:	Unknown/Unclassified		
+Functional Status:	Unknown/Unclassified		
+General ED Note	Unknown/Unclassified		
+GI CONSULT ATTENDING:	Unknown/Unclassified		
+Goals:	Plan		
+Got Your Flu Shot Yet.*the flu viruses expected to be circulating in the community.	Follow-up/Instructions	1	skip=true
+GRETNA COUNTYHIROPRACTIC CENTER	Unknown/Unclassified		
+H/o Alcohol abuse	Unknown/Unclassified		
+Habits	Unknown/Unclassified		
+Habits/Risk Screening	Unknown/Unclassified		
+Habits:	Unknown/Unclassified		
+HCP:	Unknown/Unclassified		
+Head CT:	Unknown/Unclassified		
+Headache:	Subsection	1	
+HEALTH CARE MAINTENANCE:	Unknown/Unclassified		
+Health maintenance overview	Unknown/Unclassified		
+Health Maintenance:	Unknown/Unclassified		
+Height:	Subsection	1	
+Hematologic History:	Unknown/Unclassified		
+Hematologic:	Unknown/Unclassified		
+Historian:	Unknown/Unclassified		
+HISTORY	Unknown/Unclassified		
+History Obtained From:	Unknown/Unclassified		
+History of Present Illness	Present illness		
+History of Present Illness \(obtained on admission\):	Present illness		
+History of present problem	Present illness		
+HISTORY OF PRESENTING COMPLAINT:	Present illness		
+History of Presenting Illness	Present illness		
+HISTORY OF THE PRESENT ILLNESS	Present illness		
+HISTORY:	Present illness		
+History:	Present illness		
+Home Meds:	Unknown/Unclassified		
+Hospital course since admission:	Hospital course		
+Hospital course:	Hospital course		
+HoTN:	Unknown/Unclassified		
+How can I protect myself and others from the COVID-19\s+\(Coronavirus\)?	Follow-up/Instructions		skip=true
+HPI -	Unknown/Unclassified		
+HPI ?:	Unknown/Unclassified		
+HPI/Interval Hx:	Unknown/Unclassified		
+HPI/ROS:	Unknown/Unclassified		
+Ht:	Unknown/Unclassified		
+Hx:	Unknown/Unclassified		
+I am prescribing:	Medications		
+I&P:	Unknown/Unclassified		
+I/O:	Unknown/Unclassified		
+I/P:	Unknown/Unclassified		
+ID -	Unknown/Unclassified		
+ID issues :	Unknown/Unclassified		
+ID/CC:?	Unknown/Unclassified		
+ID:	Unknown/Unclassified		
+IDENTIFICATION:	Unknown/Unclassified		
+Illicits:	Unknown/Unclassified		
+Image:	Unknown/Unclassified		
+IMAGING STUDIES:	Unknown/Unclassified		
+Imaging:	Unknown/Unclassified		
+Immunizations?:?	Immunizations		
+Immunologic history:	Unknown/Unclassified		
+Impr?:	Unknown/Unclassified		
+Impression	Unknown/Unclassified		
+Impression and plans?:?	Unknown/Unclassified		
+Impression and Recommendations?:?	Unknown/Unclassified		
+Impression by problem:	Unknown/Unclassified		
+Impression/Plan	Unknown/Unclassified		
+Impression/Plan by issue:	Unknown/Unclassified		
+Impression/Recommendations:	Unknown/Unclassified		
+Impression:	Unknown/Unclassified		
+Impressions and plans:	Unknown/Unclassified		
+IN-PATIENT ATTENDING:	Unknown/Unclassified		
+Income:	Unknown/Unclassified		
+Indications:	Unknown/Unclassified		
+Initial Oncologic History:	Unknown/Unclassified		
+Inpt Attending:	Unknown/Unclassified		
+Interim History:	Unknown/Unclassified		
+Interim Issues:	Unknown/Unclassified		
+Interval History:	Unknown/Unclassified		
+Intraoperative Course:	Unknown/Unclassified		
+Investigations/Results:	Investigations/Results		
+Investigations:	Unknown/Unclassified		
+Issues:	Unknown/Unclassified		
+Junior Resident:	Unknown/Unclassified		
+Junior:	Unknown/Unclassified		
+Lab Data ?:	Unknown/Unclassified		
+Lab EKG:	Unknown/Unclassified		
+Lab Results:	Unknown/Unclassified		
+Lab Tests	Unknown/Unclassified		
+Lab values from today:	Unknown/Unclassified		
+Lab:	Unknown/Unclassified		
+Laboratories:	Unknown/Unclassified		
+Laboratory	Unknown/Unclassified		
+Laboratory Data:	Unknown/Unclassified		
+LABORATORY EVALUATION:	Unknown/Unclassified		
+Laboratory Exam:	Unknown/Unclassified		
+Laboratory Studies:	Unknown/Unclassified		
+Laboratory tests:	Laboratory tests		
+Laboratory Values	Unknown/Unclassified		
+Laboratory:	Unknown/Unclassified		
+Labs	Unknown/Unclassified		
+Labs and images	Unknown/Unclassified		
+Labs and Studies:	Unknown/Unclassified		
+Labs notable for:	Unknown/Unclassified		
+Labs on admission:	Unknown/Unclassified		
+Labs predialysis	Unknown/Unclassified		
+Labs/Rads:	Unknown/Unclassified		
+Labs/Studies:?	Unknown/Unclassified		
+Labs:	Unknown/Unclassified		
+Last Known Medications	Medications		
+Location:	Unknown/Unclassified		
+Major Problems	Unknown/Unclassified		
+Marital Status:	Unknown/Unclassified		
+Med:	Medications		
+Medical Decision Making ED Course	Unknown/Unclassified		
+Medical Decision Making/Plan	Unknown/Unclassified		
+Medical History:	Unknown/Unclassified		
+Medical Hx:	Unknown/Unclassified		
+Medical record	Unknown/Unclassified		
+Medical Record Number:	Unknown/Unclassified		
+Medical Record:	Unknown/Unclassified		
+Medical Records Reviewed	Unknown/Unclassified		
+MEDICAL/SURGICAL HISTORY	Unknown/Unclassified		
+Medical:	Unknown/Unclassified		
+MEDICATINS ON DISCHARGE:	Unknown/Unclassified		
+Medication information	Medications		
+Medication list:	Medications		
+Medications?:	Medications		
+Medications at Home \(confirmed with family\):	Medications		
+Medications at Home:	Medications		
+Medications at present:	Medications		
+Medications by Problem:	Medications		
+Medications Here:	Medications		
+MEDICATIONS ON ADMISSION	Medications		
+Medications on admission \(confirmed with patient\):	Medications		
+MEDICATIONS ON ADMISSION \(source of information\)	Medications		
+Medications On Admission:	Medications		
+Medications on transfer:	Medications		
+Medications prior to Admission:	Medications		
+Medications to be held before surgery:	Medications		
+Medications upon admission:	Medications		
+MEDICATIONS \(Confirmed 4/7/94 on admission\):	Medications		
+Medications \(Confirmed\):	Medications		
+Medications \(current\):	Medications		
+Medications \(home\)	Medications		
+Medications \(on transfer\)	Medications		
+Medications \(per LMR\)	Medications		
+Medications \(upon admission\)	Medications		
+Medications--	Medications		
+Medicine Consult Attending:	Medications		
+Meds -	Medications		
+Meds :	Medications		
+Meds at Home:	Medications		
+Meds currently	Medications		
+Meds include:	Medications		
+Meds now:	Medications		
+Meds on admission	Medications		
+Meds on Admit:	Medications		
+Meds on Transfer:	Medications		
+MEDS PTA:	Medications		
+MEDS \(In house\):	Medications		
+Meds \(on admission\):	Medications		
+Meds:	Medications		
+Mental health history:	Unknown/Unclassified		
+Micro:	Unknown/Unclassified		
+Microbiology:	Unknown/Unclassified		
+MICU Course:	Unknown/Unclassified		
+Most Recent Labs \(since admission\)	Unknown/Unclassified		
+MR ?#?:	Unknown/Unclassified		
+MRN ?#?:	Unknown/Unclassified		
+MRN \(HH\):	Unknown/Unclassified		
+Name:	Unknown/Unclassified		
+Narrative History	Unknown/Unclassified		
+Narrative Note:	Unknown/Unclassified		
+Narrative:	Unknown/Unclassified		
+Nasal secretions:	Subsection	1	
+Nathan Rico	Unknown/Unclassified		
+Neurology Attending Staff:	Unknown/Unclassified		
+New hx:	Unknown/Unclassified		
+NIHC #:	Unknown/Unclassified		
+NKDA	Unknown/Unclassified		
+Note:	Unknown/Unclassified		
 Nutrition:	Nutrition		
+O/E:	Unknown/Unclassified		
+O:	Unknown/Unclassified		
+OB-GYN:	Unknown/Unclassified		
+OB/GYN History	Unknown/Unclassified		
+Objective:	Unknown/Unclassified		
+Obs Admission Note	Unknown/Unclassified		
+Obs Attending Note	Unknown/Unclassified		
+OFFICE VISIT \(CHC\)	Unknown/Unclassified		
+OFFICE VISIT:	Unknown/Unclassified		
+On admission to CCU:	Unknown/Unclassified		
+ON EXAMINATION:	Unknown/Unclassified		
+On transfer:	Unknown/Unclassified		
+Onc Attending:	Unknown/Unclassified		
+Onc Hx	Unknown/Unclassified		
+Onc PA:	Unknown/Unclassified		
+Oncologic History	Unknown/Unclassified		
+ONCOLOGIC HISTORY:	Unknown/Unclassified		
+Oncology History \(per attending notes\)	Unknown/Unclassified		
+Orders	Unknown/Unclassified		
+Original ID Consult:	Unknown/Unclassified		
+Other Data:	Unknown/Unclassified		
+Other issues:	Unknown/Unclassified		
+Other meds:	Medications		
+Other Past Medical/Surgical History	Unknown/Unclassified		
+Other Problems	Unknown/Unclassified		
+Other Providers	Unknown/Unclassified		
+OTHER ROS:	Unknown/Unclassified		
+Other studies	Unknown/Unclassified		
+Other:	Unknown/Unclassified		
+Outpatient Meds on Admit:	Unknown/Unclassified		
+Outpatient Nephrologist:	Unknown/Unclassified		
+Overall impression:	Unknown/Unclassified		
+P-	Unknown/Unclassified		
+P:	Unknown/Unclassified		
+Pager:	Unknown/Unclassified		
+PAIN:	Unknown/Unclassified		
+PAST CARDIOLOGICAL HISTORY	Unknown/Unclassified		
 Past history:	Past history		
-Past medical history:	Past medical history		
-Past surgical history:	Past surgical history		
+Past Medical History:?	Past history		
+PAST MEDICAL HISTORY, SOCIAL HISTORY, FAMILY HISTORY, REVIEW OF	Unknown/Unclassified		
+Past Medical Hx:	Past history		
+Past Medical/Surgical History:	Unknown/Unclassified		
+Past Medical:	Unknown/Unclassified		
+PAST PSYCHIATRIC HX:	Unknown/Unclassified		
+Past surgical history:?	Past surgical history		
+Pathology:	Pathology		
+Patient Address:	Patient information/Demographics		
+Patient DOB:	Patient information/Demographics		
+PATIENT ID:	Unknown/Unclassified		
+Patient ID:	Unknown/Unclassified		
 Patient information/Demographics:	Patient information/Demographics		
+Patient Interventions/Education:	Unknown/Unclassified		
+Patient Name:	Unknown/Unclassified		
+Patient Phone:	Patient information/Demographics		
+Patient Protocol:	Administrative/Formatting		
+Patient Summary:	Present illness		
+Patient's name:	Unknown/Unclassified		
+PATIENT/PHYSICIAN	Unknown/Unclassified		
+Patient:	Patient information/Demographics		
+PCP/Endocrinologist:	Providers		
+PCP:	Providers		
+PE -	Unknown/Unclassified		
+PE CT \(reviewed w/ ED rads here\):	Unknown/Unclassified		
+PE notable for:	Unknown/Unclassified		
+PE protocol	Unknown/Unclassified		
+PE:	Unknown/Unclassified		
+Personal data and overall health	Unknown/Unclassified		
+Pertinent COVID-19 \(Coronavirus\) information	Present illness		
+Pertinent medical history	Present illness		
+Pertinent PMH:	Unknown/Unclassified		
+PH#:	Unknown/Unclassified		
+Pharmacy:	Subsection	1	
+Philips Case Number:	Unknown/Unclassified		
+Phone:	Unknown/Unclassified		
+Phys Exam	Unknown/Unclassified		
+Physical Exam:	Unknown/Unclassified		
+Physical exam -	Unknown/Unclassified		
+Physical Examination:?	Unknown/Unclassified		
 Physical examination/Status:	Physical examination/Status		
+Plan -	Unknown/Unclassified		
+Plan.	Unknown/Unclassified		
+Plans?:	Plan		
+PMH	Unknown/Unclassified		
+PMH -	Unknown/Unclassified		
+PMH / PSH:	Unknown/Unclassified		
+PMH-Promptcare Hospitalist Attending	Unknown/Unclassified		
+PMH/Old Data	Unknown/Unclassified		
+PMH/PROBLEM LIST:	Unknown/Unclassified		
+PMH/PSH	Unknown/Unclassified		
+PMH/PSH - other:	Unknown/Unclassified		
+PMH/PSH:	Unknown/Unclassified		
+PMH:	Unknown/Unclassified		
+PMHx HTN	Unknown/Unclassified		
+PMHx/PSHx:	Unknown/Unclassified		
+PMHx:?	Unknown/Unclassified		
+Post-operative diagnoses:	Post-operative diagnoses		
+Pre-operative diagnoses:	Pre-operative diagnoses		
+Pre-operative risk factors	Unknown/Unclassified		
+Precipitating events	Present illness		
+Premedication:	Unknown/Unclassified		
+Preop Cardiac Status	Unknown/Unclassified		
+Preoperative Cardiac Status:	Unknown/Unclassified		
+Preoperative Hemodynamics and Diagnostic Testing	Unknown/Unclassified		
+Prescription:	Medications		
 Present illness:	Present illness		
-Problems:	Problems		
-Procedures:	Procedures		
+Presentation:	Unknown/Unclassified		
+PRESENTING COMPLAINT and HISTORY OF PRESENTING COMPLAINT:	Unknown/Unclassified		
+PRESENTING COMPLAINT:	Unknown/Unclassified		
+Preventive Health History	Unknown/Unclassified		
+Previous Cardiovascular Interventions:	Unknown/Unclassified		
+Previous Culture Data:	Unknown/Unclassified		
+PREVIOUS ENDOSCOPIC EVALUATIONS:	Unknown/Unclassified		
+Previous History and HPI	Unknown/Unclassified		
+Previous Studies:	Unknown/Unclassified		
+Primary Attending:	Unknown/Unclassified		
+PRIMARY CARE PHYSICIAN:	Unknown/Unclassified		
+Primary Care Provider:	Unknown/Unclassified		
+Prior CV Interventions	Unknown/Unclassified		
+Problem # 3	Unknown/Unclassified		
+Problem # 5	Unknown/Unclassified		
+Problem # 6	Unknown/Unclassified		
+Problem #1:	Unknown/Unclassified		
+Problem #2:	Unknown/Unclassified		
+Problem #4	Unknown/Unclassified		
+Problem List	Unknown/Unclassified		
+Problem List \(reviewed\)	Unknown/Unclassified		
+Problem list:	Unknown/Unclassified		
+Problem:	Unknown/Unclassified		
+Problems:?	Unknown/Unclassified		
+PROBLEMS - CARE PLANS:	Unknown/Unclassified		
+Problems and Plans	Unknown/Unclassified		
+Problems \(per LMR\)	Unknown/Unclassified		
+Problems/PMH:	Unknown/Unclassified		
+PROCEDURE	Unknown/Unclassified		
 Procedure anesthesia:	Procedure anesthesia		
 Procedure description:	Procedure description		
 Procedure disposition:	Procedure disposition		
@@ -94,8 +544,142 @@ Procedure estimated blood loss:	Procedure estimated blood loss
 Procedure findings:	Procedure findings		
 Procedure implants:	Procedure implants		
 Procedure indications:	Procedure indications		
+Procedure note:	Unknown/Unclassified		
 Procedure specimens taken:	Procedure specimens taken		
-			
+Procedures?:	Unknown/Unclassified		
+Procedures and Immunizations	Unknown/Unclassified		
+Providers:	Providers		
+PSH	Unknown/Unclassified		
+PSH:	Unknown/Unclassified		
+PSHx:	Unknown/Unclassified		
+PsurgHx:	Unknown/Unclassified		
+PSurHx	Unknown/Unclassified		
+PT NAME:	Unknown/Unclassified		
+PT/OT:	Unknown/Unclassified		
+PT:	Unknown/Unclassified		
+RADIOLOGISTS:	Unknown/Unclassified		
+Radiology	Unknown/Unclassified		
+RADIOLOGY/IMAGING:	Unknown/Unclassified		
+Radiology/Studies:	Unknown/Unclassified		
+Radiology:	Radiology		
+RADS:	Unknown/Unclassified		
+Reason for Admission:	Unknown/Unclassified		
+Reason for Consult:	Unknown/Unclassified		
+Reason for referral:	Unknown/Unclassified		
+REASON FOR STUDY	Unknown/Unclassified		
+Reason for Transfer:	Unknown/Unclassified		
+Reason for virtual visit as reported by the patient \(free-text\):	Subsection	1	
+Reason for Visit:?	Unknown/Unclassified		
 Reasons/Indications:	Reasons/Indications		
-Review of systems:	Review of systems		
-Social history:	Social history		
+Recommendations?:?	Unknown/Unclassified		
+RECORD NUMBER:	Unknown/Unclassified		
+Recs:	Unknown/Unclassified		
+REFERRAL SOURCE:	Unknown/Unclassified		
+Referring Physician:	Unknown/Unclassified		
+Refill as needed:	Subsection	1	
+Refills:	Subsection	1	
+Registration Date/Time:	Unknown/Unclassified		
+Relevant Labs:	Unknown/Unclassified		
+Renal Staff Addendum	Unknown/Unclassified		
+Report Number:	Unknown/Unclassified		
+REPORT:?	Unknown/Unclassified		
+Reports:	Unknown/Unclassified		
+Requesting Service:	Unknown/Unclassified		
+Resident:	Unknown/Unclassified		
+Rest of issues -	Unknown/Unclassified		
+Results?:	Unknown/Unclassified		
+Review  of systems:	Unknown/Unclassified		
+Review Comments	Unknown/Unclassified		
+Review Comments:I	Unknown/Unclassified		
+REVIEW OF COMPLICATIONS OF OBESITY/ROS:	Unknown/Unclassified		
+REVIEW OF MEDICAL HISTORY:	Unknown/Unclassified		
+Review of records -	Unknown/Unclassified		
+REVIEW OF SYMPTOMS:	Unknown/Unclassified		
+Review of System on admission:	Unknown/Unclassified		
+Review of systems?:?	Review of systems		
+Risk factors and habitsTobacco	Unknown/Unclassified		
+ROS	Unknown/Unclassified		
+ROS -	Unknown/Unclassified		
+ROS:	Unknown/Unclassified		
+RTC:	Unknown/Unclassified		
+RV	Unknown/Unclassified		
+S:	Unknown/Unclassified		
+Selected Recent Labs:?	Unknown/Unclassified		
+Self care	Follow-up/Instructions		skip=true
+Self-monitoring	Follow-up/Instructions		skip=true
+Senior PRS:	Unknown/Unclassified		
+Senior Resident:	Unknown/Unclassified		
+Sex:	Unknown/Unclassified		
+SH -	Unknown/Unclassified		
+SH:	Unknown/Unclassified		
+SHx:?	Unknown/Unclassified		
+Smoking status:	Unknown/Unclassified		
+Soc ?Hx:	Unknown/Unclassified		
+Social History ?:?	Social history		
+SOCIAL HISTORY and HABITS:	Unknown/Unclassified		
+SOCIAL HISTORY, FAMILY HISTORY, REVIEW OF SYSTEMS, MEDICATIONS,	Unknown/Unclassified		
+Social Hx:	Social history		
+Social Stressors:	Unknown/Unclassified		
+Social/substance history:	Unknown/Unclassified		
+Social:	Unknown/Unclassified		
+Sore throat:	Subsection	1	
+SOURCE	Unknown/Unclassified		
+Source of History:	Unknown/Unclassified		
+Source of Hx:	Unknown/Unclassified		
+Source/Reason for Referral:	Unknown/Unclassified		
+Source:	Unknown/Unclassified		
+Staff Notes?:	Unknown/Unclassified		
+Steps to help prevent the spread of COVID-19 \(Coronavirus\) if you\s+are sick	Follow-up/Instructions		skip=true
+Studies/Imaging:	Unknown/Unclassified		
+Studies:	Unknown/Unclassified		
+SUBJECTIVE:	Unknown/Unclassified		
+Substance abuse:	Unknown/Unclassified		
+Suggest:	Unknown/Unclassified		
+Summary:	Unknown/Unclassified		
+Supplements:	Unknown/Unclassified		
+Surgeon:	Unknown/Unclassified		
+Surgeries:	Unknown/Unclassified		
+Surgery:	Unknown/Unclassified		
+SURGICAL HISTORY:	Unknown/Unclassified		
+Surgical Oncologist:	Unknown/Unclassified		
+Symptom details	Present illness		
+Synchronous Triage:	Administration		
+Team III Intern Addendum	Unknown/Unclassified		
+Team:	Unknown/Unclassified		
+TECHNIQUE:	Unknown/Unclassified		
+Temperature:	Subsection	1	
+Test Results:	Unknown/Unclassified		
+Testing Results	Unknown/Unclassified		
+Tests:	Unknown/Unclassified		
+Thank you for using Virtual Urgent Care; In response to the recent COVID-19.*for 14 days or until testing is complete.	Follow-up/Instructions	1	skip=true
+THERAPY RENDERED/COURSE IN ED:	Unknown/Unclassified		
+This Virtual Encounter.* any associated images is available in Zipnosis.	Unknown/Unclassified		skip=true
+Time of admission:	Unknown/Unclassified		
+TIME OF DICTATION:	Unknown/Unclassified		
+Time of Exam:	Unknown/Unclassified		
+Time of onset:	Unknown/Unclassified		
+Time paged:	Unknown/Unclassified		
+Time Patient Seen	Unknown/Unclassified		
+Time Reccs given:	Unknown/Unclassified		
+Time:	Unknown/Unclassified		
+TO DO:	Unknown/Unclassified		
+Tobacco:	Unknown/Unclassified		
+Today's Labs:	Unknown/Unclassified		
+Transcribed by:	Unknown/Unclassified		
+Transfer:	Unknown/Unclassified		
+Triage Notes:	Follow-up/Instructions		
+Triage Point\(s\) temporarily suspended for COVID-19 \(Coronavirus\)\s+screening	Present illness		
+Unit ?#:	Unknown/Unclassified		
+URINALYSIS	Unknown/Unclassified		
+Vascular access history:	Unknown/Unclassified		
+Vascular Surgery Consult Note:	Unknown/Unclassified		
+Visit Note \(unreviewed\)	Unknown/Unclassified		
+Vital Signs:?	Unknown/Unclassified		
+Vitals:?	Unknown/Unclassified		
+VS:	Unknown/Unclassified		
+WEIGHT HISTORY:	Unknown/Unclassified		
+Weight:	Subsection	1	
+Wheezing:	Subsection	1	
+When\s+asked\s+the\s+question\s+\"Are you a current patient at MUSC Health?	Subsection	1	skip=true
+Work/educational status:	Unknown/Unclassified		
+Work:	Unknown/Unclassified		

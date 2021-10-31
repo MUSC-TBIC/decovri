@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<synonym>
+  <token umlsTui="T184" canonical="Fever" conceptType="CUI" conceptCode="C0015967">
+    <variant base="FEVER"/>
+    <variant base="Febrile"/>
+    <variant base="Fever"/>
+    <variant base="Feverish"/>
+    <variant base="Fevers"/>
+    <variant base="febrile"/>
+    <variant base="fever"/>
+    <variant base="fevers"/>
+  </token>
+</synonym>
