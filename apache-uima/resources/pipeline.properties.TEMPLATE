@@ -8,7 +8,7 @@ nlp.systems =
 fs.in.text = data/test/in/txt
 
 ## Default sample availabe under resources/
-sectionizer.template_file = section_templates.tsv
+sectionizer.template_file = resources/section_templates.tsv
 
 ## Dynamically lexicons can be added by uncommenting
 ## the below key/value pairs. The third element of the
