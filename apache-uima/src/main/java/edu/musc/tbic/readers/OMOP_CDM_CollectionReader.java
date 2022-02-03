@@ -119,9 +119,9 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
         }
 
         String filtered_note_types = "";
-        if( mProperties.containsKey( "filter.note_type.field" ) &
-            ! mProperties.getProperty( "filter.note_type.field" ).trim().equals( "" ) &
-            mProperties.containsKey( "filter.note_type.values" ) &
+        if( mProperties.containsKey( "filter.note_type.field" ) &&
+            ! mProperties.getProperty( "filter.note_type.field" ).trim().equals( "" ) &&
+            mProperties.containsKey( "filter.note_type.values" ) &&
             ! mProperties.getProperty( "filter.note_type.values" ).trim().equals( "" ) ){
             String note_type_field = mProperties.getProperty( "filter.note_type.field" );
             String[] note_types_list = mProperties.getProperty( "filter.note_type.values" ).split( "," );

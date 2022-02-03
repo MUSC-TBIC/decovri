@@ -28,7 +28,7 @@ context.log_file =
 fs.out.xmi = data/test/out/xmi
 fs.out.txt = data/test/out/txt
 fs.out.tsv = data/test/out/tsv
-fs.out.note_nlp = 
+fs.out.note_nlp_file = 
 fs.out.note_segments = 
 fs.out.annotated_text = 
 
