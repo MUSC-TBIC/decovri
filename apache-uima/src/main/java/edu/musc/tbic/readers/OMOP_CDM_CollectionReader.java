@@ -110,12 +110,36 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
                     system_list[ i ] = system_list[ i ].trim();                 
                 }
                 filtered_nlp_systems = "WHERE nn.NLP_SYSTEM in ( '" +
-                                       String.join( "' , '" , system_list ) +
-                                       "' )";
+                    String.join( "' , '" , system_list ) +
+                    "' )";
             }
             mLogger.info( "Filtering out notes already processed by the following NLP_SYSTEMs: " + filtered_nlp_systems );
         } else {
             mLogger.warn( "No restrictions put on NLP_SYSTEMs for filtering notes" );
+        }
+
+        String filtered_note_types = "";
+        if( mProperties.containsKey( "filter.note_type.field" ) &
+            ! mProperties.getProperty( "filter.note_type.field" ).trim().equals( "" ) &
+            mProperties.containsKey( "filter.note_type.values" ) &
+            ! mProperties.getProperty( "filter.note_type.values" ).trim().equals( "" ) ){
+            String note_type_field = mProperties.getProperty( "filter.note_type.field" );
+            String[] note_types_list = mProperties.getProperty( "filter.note_type.values" ).split( "," );
+            if( note_types_list.length == 1 ){
+                filtered_note_types = "AND nt." + note_type_field +
+                    " in ( '" + note_types_list[ 0 ].trim() + "' )";
+            } else {
+                for( int i = 0 ; i < note_types_list.length ; i++ ){
+                    note_types_list[ i ] = note_types_list[ i ].trim();                 
+                }
+                filtered_note_types = "AND nt." + note_type_field +
+                    " in ( '" +
+                    String.join( "' , '" , note_types_list ) +
+                    "' )";
+            }
+            mLogger.info( "Filtering to include only those notes of the following type: " + filtered_note_types );
+        } else {
+            mLogger.warn( "No restrictions put on NOTE_TYPES for filtering notes" );
         }
         
         // Initialize the watermark id to whatever was passed as
@@ -193,19 +217,19 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
             if( mDbms.equalsIgnoreCase( "oracle" ) ){
                 Class.forName( "oracle.jdbc.driver.OracleDriver" );
                 mCon = DriverManager.getConnection( "jdbc:oracle:thin:" +
-                        mUsername + "/" + mPassword + 
-                        "@" + mServer + ":" + mDatabase );
+                                                    mUsername + "/" + mPassword + 
+                                                    "@" + mServer + ":" + mDatabase );
             } else if( mDbms.equalsIgnoreCase( "sqlserver" ) ){
                 Class.forName( "net.sourceforge.jtds.jdbc.Driver" );
                 mCon = DriverManager.getConnection( "jdbc:jtds:sqlserver:" +
-                        "//" + mServer +
-                        "/" + mDatabase + 
-                        ";authenticationScheme=nativeAuthentication" +
-                        // TODO - make the database connection details portable/configurable
-                        ";domain=CLINLAN;useNTLMv2=true" +
-                        ";integratedSecurity=false" ,
-                        mUsername , 
-                        mPassword );
+                                                    "//" + mServer +
+                                                    "/" + mDatabase + 
+                                                    ";authenticationScheme=nativeAuthentication" +
+                                                    // TODO - make the database connection details portable/configurable
+                                                    ";domain=CLINLAN;useNTLMv2=true" +
+                                                    ";integratedSecurity=false" ,
+                                                    mUsername , 
+                                                    mPassword );
             } else {
                 mLogger.error( "Unrecognized DBMS type:  '" + mDbms + "'" );
             }
@@ -215,25 +239,27 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
                     limitString = "TOP(" + limitString + ") ";
                 }
                 mRs = mStmt.executeQuery( "SELECT " + limitString +
-                        "    nt.note_id , nt.person_id , nt.note_text " +
-                        "    FROM " + mSchema + ".note as nt " +
-                        "    LEFT JOIN ( SELECT DISTINCT nn.NOTE_ID " +
-                        "               FROM " + mDatabase + "." + mSchema + ".note_nlp as nn " +
-                        "               " + filtered_nlp_systems +
-                        "              ) nnj " +
-                        "    ON nt.NOTE_ID = nnj.NOTE_ID " +
-                        "    WHERE nt.note_id > '" + mWatermark + "' " +
-                        "    AND nnj.NOTE_ID is NULL " +
-                        "    ORDER BY nt.note_id" );   
+                                          "    nt.note_id , nt.person_id , nt.note_text " +
+                                          "    FROM " + mSchema + ".note as nt " +
+                                          "    LEFT JOIN ( SELECT DISTINCT nn.NOTE_ID " +
+                                          "               FROM " + mDatabase + "." + mSchema + ".note_nlp as nn " +
+                                          "               " + filtered_nlp_systems +
+                                          "              ) nnj " +
+                                          "    ON nt.NOTE_ID = nnj.NOTE_ID " +
+                                          "    WHERE nt.note_id > '" + mWatermark + "' " +
+                                          "    AND nnj.NOTE_ID is NULL " +
+                                          "    " + filtered_note_types +
+                                          "    ORDER BY nt.note_id" );
             } else if( mDbms.equalsIgnoreCase( "oracle" ) ){
                 if( limitString != "" ){
                     limitString = " ROWNUM " + limitString;
                 }
                 mRs = mStmt.executeQuery( "ALTER SESSION SET CURRENT_SCHEMA = " + mSchema );
                 mRs = mStmt.executeQuery( "SELECT note_id , patient_mrn , full_text " +
-                        "FROM NOTE " +
-                        "WHERE note_id > " + mWatermark + " " +
-                        limitString );
+                                          "FROM NOTE " +
+                                          "WHERE note_id > " + mWatermark + " " +
+                                          filtered_note_types +
+                                          limitString );
                 // TODO - look up oracle order by syntax
                 // TODO - add filtering logic to oracle syntax
             }
@@ -321,9 +347,9 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
     public void getNext(CAS aCAS) throws IOException, CollectionException {
         JCas jcas;
         try {
-          jcas = aCAS.getJCas();
+            jcas = aCAS.getJCas();
         } catch (CASException e) {
-          throw new CollectionException(e);
+            throw new CollectionException(e);
         }
         
         Boolean success_flag = getNextNote( jcas );
@@ -373,10 +399,10 @@ public class OMOP_CDM_CollectionReader extends CollectionReader_ImplBase {
     }
     
     public void destroy() {
-      mLogger.info( "Unique files pulled from the DataMart: " + String.valueOf( mFileCount ) );
-      mLogger.info( "Unique empty files pulled from the DataMart: " + String.valueOf( mEmptyFiles ) );
-      // TODO - find correct place to track/capture failed files
-//      mLogger.info( "Unique files failed to be parsed for the DataMart: " + String.valueOf( mFailedFiles ) );
-  }
+        mLogger.info( "Unique files pulled from the DataMart: " + String.valueOf( mFileCount ) );
+        mLogger.info( "Unique empty files pulled from the DataMart: " + String.valueOf( mEmptyFiles ) );
+        // TODO - find correct place to track/capture failed files
+        //      mLogger.info( "Unique files failed to be parsed for the DataMart: " + String.valueOf( mFailedFiles ) );
+    }
 
 }

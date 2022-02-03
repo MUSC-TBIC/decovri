@@ -9,3 +9,7 @@ db.batch_size = -1
 db.batch_window = 1000
 fs.lock_file = /tmp/job.lock
 fs.watermark_file = /tmp/watermark.txt
+
+filter.nlp.systems =
+filter.note_type.field = 
+filter.note_type.values = 
