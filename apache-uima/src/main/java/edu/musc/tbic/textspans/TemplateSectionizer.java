@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,8 +30,8 @@ import edu.musc.tbic.uima.Decovri;
 import edu.musc.tbic.uima.NoteSection;
 
 public class TemplateSectionizer extends JCasAnnotator_ImplBase {
-	
-	private Logger mLogger = LoggerFactory.getLogger( Decovri.class );
+        
+    private Logger mLogger = LoggerFactory.getLogger( Decovri.class );
     
     /**
      * Name of configuration parameter that must be set to the full type description for sentences
@@ -38,17 +40,19 @@ public class TemplateSectionizer extends JCasAnnotator_ImplBase {
     @ConfigurationParameter( name = PARAM_SECTIONTEMPLATES , 
                              description = "File containing section header templates" , 
                              mandatory = false )
-    private String mSectionTemplateFile;
+                             private String mSectionTemplateFile;
     private CSVParser mSectionTemplateParser;
+    private ArrayList<String> mOrderedSectionTemplates;
+    private Set<Integer> mCoveredSpans;
     private TreeMap<String, String> mSectionTemplateToType;
     private TreeMap<String, Integer> mSectionTemplateToDepth;
     private TreeMap<String, String> mSectionTemplateToModifier;
     
     private Pattern mUnderline = Pattern.compile( "-+" );
-	
-	private int mSectionCount;
-	
-	public void initialize(UimaContext aContext) throws ResourceInitializationException {
+        
+    private int mSectionCount;
+        
+    public void initialize(UimaContext aContext) throws ResourceInitializationException {
         super.initialize(aContext);
         
         if( aContext.getConfigParameterValue( "SectionTemplateFile" ) == null ){
@@ -59,21 +63,28 @@ public class TemplateSectionizer extends JCasAnnotator_ImplBase {
         }
         
         mLogger.info( "Loading Excel-style TSV file: " + mSectionTemplateFile );
+        mOrderedSectionTemplates = new ArrayList<String>();
+        mCoveredSpans = new HashSet<Integer>();
         mSectionTemplateToType = new TreeMap<>();
         mSectionTemplateToDepth = new TreeMap<>();
         mSectionTemplateToModifier = new TreeMap<>();
         try {
             FileReader fr = new FileReader( mSectionTemplateFile );
             mSectionTemplateParser = new CSVParser( fr , CSVFormat.EXCEL
-                    .withHeader( "Template", "SectionType", "Depth", "Modifiers" )
-                    .withDelimiter( '\t' )
-                    .withTrim());
+                                                    .withHeader( "Template", "SectionType", "Depth", "Modifiers" )
+                                                    .withDelimiter( '\t' )
+                                                    .withTrim());
             for( CSVRecord csvRecord : mSectionTemplateParser ) {
                 // TODO - make this more robust to malformed lines
                 String template = csvRecord.get( "Template" );
                 if( template.trim().equals( "" ) ){
                     continue;
                 }
+                if( mOrderedSectionTemplates.contains( template ) ){
+                    mLogger.warn( "Section template defined by '" + template + "' is duplicated. Skipping later entries." );
+                    continue;
+                }
+                mOrderedSectionTemplates.add( template );
                 String section_type = csvRecord.get( "SectionType" );
                 mSectionTemplateToType.put( template , section_type );
                 int depth = 0;
@@ -101,173 +112,189 @@ public class TemplateSectionizer extends JCasAnnotator_ImplBase {
         }
         
     }
-	
-	///////////////////////////////////////////////////////
-	private void matchHeader( JCas aJCas , String docText , 
-			 				  String headerFormat , 
-			 				  String sectionType , int sectionDepth ,
-			 				  String modifiers ){
-		Pattern headerPattern = Pattern.compile( headerFormat , Pattern.CASE_INSENSITIVE );
-		Matcher matcher = headerPattern.matcher( docText );
-		int pos = 0;
-		int section_start = -1;
-		int section_end = -1;
-		while( matcher.find( pos ) ) {
-			section_start = matcher.start();
-			section_end = matcher.end();
+        
+    ///////////////////////////////////////////////////////
+    private void matchHeader( JCas aJCas , String docText , 
+                              String headerFormat , 
+                              String sectionType , int sectionDepth ,
+                              String modifiers ){
+        Pattern headerPattern = Pattern.compile( headerFormat ,
+                                                 Pattern.CASE_INSENSITIVE |
+                                                 Pattern.MULTILINE );
+        Matcher matcher = headerPattern.matcher( docText );
+        int pos = 0;
+        int section_start = -1;
+        int section_end = -1;
+        while( matcher.find( pos ) ) {
+            section_start = matcher.start();
+            section_end = matcher.end();
+            Set<Integer> new_span = new HashSet<Integer>();
+            for( int i = section_start ; i < section_end ; i++ ){
+                new_span.add( i );
+            }
+            Set<Integer> intersection_span = new HashSet<Integer>( mCoveredSpans );
+            intersection_span.retainAll( new_span );
+            if( intersection_span.size() > 0 ){
+                //mLogger.debug( "\tIntersection = " + Integer.toString( intersection_span.size() ) );
+                pos = matcher.end();
+                continue;
+            }
+            mCoveredSpans.addAll( new_span );
+            
+            NoteSection annotation = new NoteSection( aJCas );
+            annotation.setBegin( section_start );
+            annotation.setEnd( section_end );
+            annotation.setBeginHeader( section_start );
+            annotation.setEndHeader( section_end );
+            
+            Matcher underlineMatcher = mUnderline.matcher( docText );
+            if( underlineMatcher.find( section_end ) ){
+                int underline_start = underlineMatcher.start();
+                int underline_end = underlineMatcher.end();
+                if( underline_start < section_end + 2 ){
+                    section_end = underline_end;
+                }
+            }
+            annotation.setSectionId( sectionType );
+            annotation.setSectionDepth( sectionDepth );
+            annotation.setModifiers( modifiers );
+            mSectionCount++;
+            annotation.setSectionNumber( mSectionCount );
+            annotation.addToIndexes();
+            pos = matcher.end();
+        }
+    }
+        
+    ////////////////////////////////////////
+    // Default values for sectionDepth = 0 and modifiers = ""
+    private void matchHeader( JCas aJCas , String docText , 
+                              String headerFormat , 
+                              String sectionType ){
+        matchHeader( aJCas , docText , 
+                     headerFormat , 
+                     sectionType , 0 , "" );
+    }
+        
+    ////////////////////////////////////////
+    // Default value for sectionDepth = 0
+    private void matchHeader( JCas aJCas , String docText , 
+                              String headerFormat , 
+                              String sectionType , String modifiers ){
+        matchHeader( aJCas , docText , 
+                     headerFormat , 
+                     sectionType , 0 , modifiers );
+    }
+        
+    ////////////////////////////////////////
+    // Default value for modifiers = ""
+    private void matchHeader( JCas aJCas , String docText , 
+                              String headerFormat , 
+                              String sectionType , int sectionDepth ){
+        matchHeader( aJCas , docText , 
+                     headerFormat , 
+                     sectionType , sectionDepth , "" );
+    }
+        
+    ///////////////////////////////////////////////////////
+    @Override
+    public void process( JCas aJCas ) throws AnalysisEngineProcessException {
+        // get document text from JCas
+        String docText = aJCas.getDocumentText();
+                
+        if( docText.length() == 0 ){
+            // TODO - extract NOTE_ID for metrics logging
+            //                      mLogger.info( "Note '" + note_id + "' is empty. No sections created." );
+            mLogger.info( "Note is empty. No sections created." );
+            return;
+        }
 
-			NoteSection annotation = new NoteSection( aJCas );
-			annotation.setBegin( section_start );
-			annotation.setEnd( section_end );
-			annotation.setBeginHeader( section_start );
-			annotation.setEndHeader( section_end );
-			
-			Matcher underlineMatcher = mUnderline.matcher( docText );
-			if( underlineMatcher.find( section_end ) ){
-				int underline_start = underlineMatcher.start();
-				int underline_end = underlineMatcher.end();
-				if( underline_start < section_end + 2 ){
-					section_end = underline_end;
-				}
-			}
-			annotation.setSectionId( sectionType );
-			annotation.setSectionDepth( sectionDepth );
-			annotation.setModifiers( modifiers );
-			mSectionCount++;
-			annotation.setSectionNumber( mSectionCount );
-			annotation.addToIndexes();
-			pos = matcher.end();
-		}
-	}
-	
-	////////////////////////////////////////
-	// Default values for sectionDepth = 0 and modifiers = ""
-	private void matchHeader( JCas aJCas , String docText , 
-			  				  String headerFormat , 
-			  				  String sectionType ){
-		matchHeader( aJCas , docText , 
-					 headerFormat , 
-					 sectionType , 0 , "" );
-	}
-	
-	////////////////////////////////////////
-	// Default value for sectionDepth = 0
-	private void matchHeader( JCas aJCas , String docText , 
-			  				  String headerFormat , 
-			  				  String sectionType , String modifiers ){
-		matchHeader( aJCas , docText , 
-					 headerFormat , 
-					 sectionType , 0 , modifiers );
-	}
-	
-	////////////////////////////////////////
-	// Default value for modifiers = ""
-	private void matchHeader( JCas aJCas , String docText , 
-			  				  String headerFormat , 
-			  				  String sectionType , int sectionDepth ){
-		matchHeader( aJCas , docText , 
-					 headerFormat , 
-					 sectionType , sectionDepth , "" );
-	}
-	
-	///////////////////////////////////////////////////////
-	@Override
-	public void process( JCas aJCas ) throws AnalysisEngineProcessException {
-		// get document text from JCas
-		String docText = aJCas.getDocumentText();
-		
-		if( docText.length() == 0 ){
-			// TODO - extract NOTE_ID for metrics logging
-//			mLogger.info( "Note '" + note_id + "' is empty. No sections created." );
-			mLogger.info( "Note is empty. No sections created." );
-			return;
-		}
-
-		mSectionCount = 0;
-		
-		for( Entry<String, String> entry : mSectionTemplateToType.entrySet() ){
-		    String template = entry.getKey();
-		    String section_type = entry.getValue();
-		    int depth = mSectionTemplateToDepth.get( template );
-		    String term_modifiers = mSectionTemplateToModifier.get( template );
-		    matchHeader( aJCas , docText , 
-		            template , 
-		            section_type ,
-		            depth ,
-		            term_modifiers );
-		}
-		
-		///////////////////////////////////////////////////////////////
-		List<NoteSection> rawHeaders = new ArrayList<NoteSection> ();
-		FSIndex<NoteSection> sect_index = aJCas.getAnnotationIndex( NoteSection.type );
+        mSectionCount = 0;
+        
+        for( int i = 0 ; i < mOrderedSectionTemplates.size() ; i++ ){
+            
+            //for( Entry<String, String> entry : mSectionTemplateToType.entrySet() ){
+            String template = mOrderedSectionTemplates.get( i );
+            String section_type = mSectionTemplateToType.get( template );//entry.getValue();
+            int depth = mSectionTemplateToDepth.get( template );
+            String term_modifiers = mSectionTemplateToModifier.get( template );
+            matchHeader( aJCas , docText , 
+                         template , 
+                         section_type ,
+                         depth ,
+                         term_modifiers );
+        }
+                
+        ///////////////////////////////////////////////////////////////
+        List<NoteSection> rawHeaders = new ArrayList<NoteSection> ();
+        FSIndex<NoteSection> sect_index = aJCas.getAnnotationIndex( NoteSection.type );
         Iterator<NoteSection> sect_iter = sect_index.iterator();
         while( sect_iter.hasNext() ){
-        	NoteSection this_section = (NoteSection)sect_iter.next();
-        	rawHeaders.add( this_section );
+            NoteSection this_section = (NoteSection)sect_iter.next();
+            rawHeaders.add( this_section );
         }
         NoteSection last_section = null;
         NoteSection last_subsection = null;
         for( NoteSection this_section : rawHeaders ){
-        	this_section.removeFromIndexes();
-        	int start_offset = this_section.getBegin();
-        	int end_offset = this_section.getEnd();
-        	if( last_section == null & start_offset > 1 ){
-        		// TODO - convert these to debug statements
-//            	System.out.println( "-- FrontMatter --\t[ 1 - " + ( start_offset - 1 ) + " ]" );
-            	NoteSection annotation = new NoteSection( aJCas );
-    			annotation.setBegin( 1 );
-    			annotation.setEnd( ( start_offset - 1 ) );
-    			annotation.setBeginHeader( -1 );
-    			annotation.setEndHeader( -1 );
-    			annotation.setSectionId( "Unknown/Unclassified" );
-    			annotation.setSectionDepth( 0 );
-    			annotation.setModifiers( "" );
-    			mSectionCount++;
-    			annotation.setSectionNumber( mSectionCount );
-    			annotation.addToIndexes();
-        	}
-        	if( this_section.getSectionDepth() == 0 ){
-	        	if( last_section != null ){
-	        		last_section.setEnd( start_offset - 1 );
-	        	}
-	        	if( last_subsection != null ){
-	        		last_subsection.setEnd( start_offset - 1 );
-	        		last_subsection = null;
-	        	}
-        		// TODO - convert these to debug statements
-//	        	System.out.println( this_section.getSectionId() + "\t[ " + start_offset + " - " + end_offset + " ]" );
-	        	last_section = this_section;
-        	} else {
-	        	if( last_subsection != null ){
-	        		last_subsection.setEnd( start_offset - 1 );
-	        	}
-        		// TODO - convert these to debug statements
-//        		System.out.println( "\t" + this_section.getSectionId() + "\t[ " + start_offset + " - " + end_offset + " ]" );
-	        	last_subsection = this_section;
-        	}
-        	this_section.addToIndexes();
+            this_section.removeFromIndexes();
+            int start_offset = this_section.getBegin();
+            int end_offset = this_section.getEnd();
+            if( last_section == null & start_offset > 1 ){
+                // TODO - convert these to debug statements
+                //              System.out.println( "-- FrontMatter --\t[ 1 - " + ( start_offset - 1 ) + " ]" );
+                NoteSection annotation = new NoteSection( aJCas );
+                annotation.setBegin( 1 );
+                annotation.setEnd( ( start_offset - 1 ) );
+                annotation.setBeginHeader( -1 );
+                annotation.setEndHeader( -1 );
+                annotation.setSectionId( "Unknown/Unclassified" );
+                annotation.setSectionDepth( 0 );
+                annotation.setModifiers( "" );
+                mSectionCount++;
+                annotation.setSectionNumber( mSectionCount );
+                annotation.addToIndexes();
+            }
+            if( this_section.getSectionDepth() == 0 ){
+                if( last_section != null ){
+                    last_section.setEnd( start_offset - 1 );
+                }
+                if( last_subsection != null ){
+                    last_subsection.setEnd( start_offset - 1 );
+                    last_subsection = null;
+                }
+                // TODO - convert these to debug statements
+                //                      System.out.println( this_section.getSectionId() + "\t[ " + start_offset + " - " + end_offset + " ]" );
+                last_section = this_section;
+            } else {
+                if( last_subsection != null ){
+                    last_subsection.setEnd( start_offset - 1 );
+                }
+                // TODO - convert these to debug statements
+                //                      System.out.println( "\t" + this_section.getSectionId() + "\t[ " + start_offset + " - " + end_offset + " ]" );
+                last_subsection = this_section;
+            }
+            this_section.addToIndexes();
         }
         ////////////////////////////////
         // TODO - find a more appropriate section id for this type
         if( mSectionCount == 0 ){
-        	// TODO - extract NOTE_ID for metrics logging
-//            mLogger.info( "Note '" + note_id + "' contains only back matter section" );
+            // TODO - extract NOTE_ID for metrics logging
+            //            mLogger.info( "Note '" + note_id + "' contains only back matter section" );
             mLogger.info( "Note contains only back matter section" );
-        	NoteSection annotation = new NoteSection( aJCas );
-			annotation.setBegin( 0 );
-			annotation.setEnd( docText.length() );
-			annotation.setBeginHeader( -1 );
-			annotation.setEndHeader( -1 );
-			annotation.setSectionId( "Unknown/Unclassified" );
-			annotation.setSectionDepth( 0 );
-			annotation.setModifiers( "" );
-			mSectionCount++;
-			annotation.setSectionNumber( mSectionCount );
-			annotation.addToIndexes();
+            NoteSection annotation = new NoteSection( aJCas );
+            annotation.setBegin( 0 );
+            annotation.setEnd( docText.length() );
+            annotation.setBeginHeader( -1 );
+            annotation.setEndHeader( -1 );
+            annotation.setSectionId( "Unknown/Unclassified" );
+            annotation.setSectionDepth( 0 );
+            annotation.setModifiers( "" );
+            mSectionCount++;
+            annotation.setSectionNumber( mSectionCount );
+            annotation.addToIndexes();
         } else {
-        	// TODO - extract NOTE_ID for metrics logging
-//            mLogger.info( "Note '" + note_id + "' split into " + mSectionCount + " sections" );
+            // TODO - extract NOTE_ID for metrics logging
+            //            mLogger.info( "Note '" + note_id + "' split into " + mSectionCount + " sections" );
             mLogger.info( "Note split into " + mSectionCount + " sections" );
         }
-	}
+    }
 }
