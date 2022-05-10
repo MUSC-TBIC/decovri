@@ -351,7 +351,8 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             svmSectionizer = AnalysisEngineFactory.createEngineDescription(
             		BinarySVMSectionizer.class ,
                     BinarySVMSectionizer.PARAM_SECTIONTRAININGFILE , training_file ,
-                    BinarySVMSectionizer.PARAM_SECTIONMODEL , model_file );
+                    BinarySVMSectionizer.PARAM_SECTIONMODEL , model_file ,
+                    BinarySVMSectionizer.PARAM_SENTENCETYPE, sentence_type );
             builder.add( svmSectionizer );         
         } else {
             mLogger.warn( "No known sectionizer provided" );
@@ -509,7 +510,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                 context_log_file = pipeline_properties.getProperty( "context.log_file" );
             }
             AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
-                    ContextAnnotator.class,
+                    ContextAnnotator.class ,
                     ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
                     ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
                     ConText.PARAM_CONTEXT_LOG , context_log_file

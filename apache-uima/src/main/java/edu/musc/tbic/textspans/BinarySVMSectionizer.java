@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -11,11 +12,13 @@ import java.util.Vector;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_component.JCasAnnotator_ImplBase;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FSIndex;
 import org.apache.uima.fit.descriptor.ConfigurationParameter;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.slf4j.Logger;
@@ -23,7 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import edu.musc.tbic.uima.Decovri;
 import edu.musc.tbic.uima.NoteSection;
-
+import edu.utah.bmi.nlp.core.SimpleParser;
+import edu.utah.bmi.nlp.core.Span;
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
@@ -56,11 +60,26 @@ public class BinarySVMSectionizer extends JCasAnnotator_ImplBase {
     private svm_problem mProblem;
     private svm_parameter mParams;
     private svm_model mSectionModel;
+
+    /**
+     * Name of configuration parameter that must be set to the full type description for sentences
+     */
+    public static final String PARAM_SENTENCETYPE = "SentenceType";
+    @ConfigurationParameter( name = PARAM_SENTENCETYPE , 
+                             description = "Full type description for sentences" , 
+                             mandatory = false )
+    private String mSentenceType;
     
     private int mSectionCount;
         
     public void initialize(UimaContext aContext) throws ResourceInitializationException {
         super.initialize(aContext);
+        
+        if( aContext.getConfigParameterValue( "SentenceType" ) == null ){
+            mSentenceType = "org.apache.ctakes.typesystem.type.textspan.Sentence";
+        } else {
+            mSentenceType = (String) aContext.getConfigParameterValue( "SentenceType" );
+        }
         
         if( aContext.getConfigParameterValue( "SectionTrainingFile" ) == null ){
         	mSectionTrainingFile = "";
@@ -80,7 +99,7 @@ public class BinarySVMSectionizer extends JCasAnnotator_ImplBase {
         	mParams = new svm_parameter();
         	// default values
         	mParams.svm_type = svm_parameter.C_SVC;
-        	mParams.kernel_type = svm_parameter.RBF;
+        	mParams.kernel_type = svm_parameter.LINEAR;
         	mParams.degree = 3;
         	mParams.gamma = 0;	// 1/num_features
         	mParams.coef0 = 0;
@@ -203,7 +222,7 @@ public class BinarySVMSectionizer extends JCasAnnotator_ImplBase {
         		System.exit(1);
         	}
 
-        	//svm_train.do_cross_validation( mProblem , mParams );
+        	Utils.do_cross_validation( mProblem , mParams );
 
         	mSectionModel = svm.svm_train( mProblem , mParams );
         	try {
@@ -232,8 +251,9 @@ public class BinarySVMSectionizer extends JCasAnnotator_ImplBase {
     public void process( JCas aJCas ) throws AnalysisEngineProcessException {
         // get document text from JCas
         String docText = aJCas.getDocumentText();
-                
-        if( docText.length() == 0 ){
+            
+        int doc_len = docText.length();
+        if( doc_len == 0 ){
             // TODO - extract NOTE_ID for metrics logging
             //                      mLogger.info( "Note '" + note_id + "' is empty. No sections created." );
             mLogger.info( "Note is empty. No sections created." );
@@ -242,7 +262,87 @@ public class BinarySVMSectionizer extends JCasAnnotator_ImplBase {
 
         mSectionCount = 0;
         
-        // TODO : Iterate over every sentence and make a prediction
+        try{
+            // Go through all the sentences using select since subiterator doesn't play nicely with uimaFIT
+            // cf. https://issues.apache.org/jira/browse/CTAKES-16
+        	// TODO - Use the provided mSentenceType rather than this forced class type
+            Collection<Sentence> sentences = JCasUtil.select( aJCas , Sentence.class );
+
+            System.out.println( "Sentences = " + sentences.size() );
+            int sentenceCount = 0;
+            for( Sentence current_sentence : sentences ){
+                sentenceCount++;
+                int m = 5;
+    			svm_node[] x = new svm_node[m];
+    			
+                String sentenceText = current_sentence.getCoveredText();
+                ArrayList<Span> sentenceTokenSpans = SimpleParser.tokenizeOnWhitespaces( sentenceText );
+                
+                // All Uppercase?
+                x[0] = new svm_node();
+                x[0].index = 1;
+                // Assume it is all uppercase, unless we find a counter example
+            	x[0].value = 1.0;
+                
+                // all title case?
+                x[1] = new svm_node();
+                x[1].index = 2;
+                // Assume it is titlecased, unless we find a counter example
+                x[1].value = 1.0;
+
+                for( Span tokenSpan : sentenceTokenSpans ){
+                	if( tokenSpan.getText().matches( ".*[a-z]+.*" ) ) {
+                    	x[0].value = 0.0;
+                    	if( tokenSpan.getText().matches( "^[a-z].*" ) ) {
+                    		x[1].value = 0.0;
+                    		break;
+                    	}
+                	}
+                }
+
+                // End in a colon?
+                x[2] = new svm_node();
+                x[2].index = 3;
+                if( sentenceText.matches( ".*?:\\W*$" ) ) {
+                	x[2].value = 1.0;
+                } else {
+                	x[2].value = 0.0;
+                }
+                // TODO - Does it contain a verb?
+                x[3] = new svm_node();
+                x[3].index = 4;
+                if( false ) {
+                	x[3].value = 1.0;
+                } else {
+                	x[3].value = 0.0;
+                }
+                // Percentage of the way through the note this sentence starts at
+                x[4] = new svm_node();
+                x[4].index = 5;
+                x[4].value = 1.0 * current_sentence.getBegin() / doc_len;
+                
+                double y = svm.svm_predict( mSectionModel , x );
+                if( y == 1.0 ){
+                	int section_start = current_sentence.getBegin();
+                    int section_end = current_sentence.getEnd();
+                    
+                    NoteSection annotation = new NoteSection( aJCas );
+                    annotation.setBegin( section_start );
+                    annotation.setEnd( section_end );
+                    annotation.setBeginHeader( section_start );
+                    annotation.setEndHeader( section_end );
+                    
+                    annotation.setSectionId( "Unknown/Unclassified" );
+                    annotation.setSectionDepth( 0 );
+                    annotation.setModifiers( "" );
+                    mSectionCount++;
+                    annotation.setSectionNumber( mSectionCount );
+                    annotation.addToIndexes();
+                }
+            }
+        } catch(Exception e){
+            throw new AnalysisEngineProcessException(e);
+        }
                 
         ///////////////////////////////////////////////////////////////
         List<NoteSection> rawHeaders = new ArrayList<NoteSection> ();
