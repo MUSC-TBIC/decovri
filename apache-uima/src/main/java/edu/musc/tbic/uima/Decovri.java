@@ -38,6 +38,7 @@ import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 
 import edu.musc.tbic.opennlp.OpenNlpTokenizer;
+import edu.musc.tbic.textspans.BinarySVMSectionizer;
 import edu.musc.tbic.textspans.TemplateSectionizer;
 //import edu.musc.tbic.sentencePatch.delimPatcher;
 //import edu.musc.tbic.textspans.WekaSectionizer;
@@ -236,10 +237,15 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if (sampleDir.startsWith("~")){
                 mLogger.warn("Input directory starts with '~', did you mean to use your full home path?");
             }
+            String suffix_list = "";
+            if( pipeline_properties.containsKey( "fs.in.suffixes.allow" ) ){
+            	suffix_list = pipeline_properties.getProperty( "fs.in.suffixes.allow" );
+            }
             mLogger.info( "Loading module 'Text Reader' for " + sampleDir );
             collectionReader = CollectionReaderFactory.createReaderDescription(
                     FileSystemCollectionReader.class ,
-                    FileSystemCollectionReader.PARAM_INPUTDIR , sampleDir );
+                    FileSystemCollectionReader.PARAM_INPUTDIR , sampleDir ,
+                    FileSystemCollectionReader.PARAM_SUFFIXESALLOW , suffix_list );
         } else if( pipeline_modules.contains( "OMOP CDM Reader" ) ){
             ////////////////////////////////////
             // Initialize database reader
@@ -326,6 +332,27 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                         TemplateSectionizer.PARAM_SECTIONTEMPLATES , template_file);
             }
             builder.add(templateSectionizer );         
+        } else if( pipeline_modules.contains( "SVM Sectionizer" ) ){
+        	String training_file = "";
+        	String model_file = "";
+            AnalysisEngineDescription svmSectionizer = null;
+            if( pipeline_properties.containsKey( "sectionizer.training_file" ) ){
+            	training_file = pipeline_properties.getProperty( "sectionizer.training_file" );
+            }
+            if( pipeline_properties.containsKey( "sectionizer.model_file" ) ){
+            	model_file = pipeline_properties.getProperty( "sectionizer.model_file" );
+            }
+            if( model_file == null || model_file.equals("") ) {
+                mLogger.info( "Loading module 'BinarySVMSectionizer' with default values" );
+                
+            } else {
+                mLogger.info( "Loading module 'BinarySVMSectionizer' with " + model_file );
+            }
+            svmSectionizer = AnalysisEngineFactory.createEngineDescription(
+            		BinarySVMSectionizer.class ,
+                    BinarySVMSectionizer.PARAM_SECTIONTRAININGFILE , training_file ,
+                    BinarySVMSectionizer.PARAM_SECTIONMODEL , model_file );
+            builder.add( svmSectionizer );         
         } else {
             mLogger.warn( "No known sectionizer provided" );
         }
