@@ -6,6 +6,9 @@ fit.writers = XML Out
 nlp.systems = 
 
 fs.in.text = data/test/in/txt
+## Space-delimited list of file suffixes to process. An empty list
+## allows all files (except .DS_STORE) through.
+fs.in.suffixes.allow = .txt .text
 
 ## Default value. Change this if you use a differently named file or
 ## path.
@@ -28,7 +31,7 @@ context.log_file =
 fs.out.xmi = data/test/out/xmi
 fs.out.txt = data/test/out/txt
 fs.out.tsv = data/test/out/tsv
-fs.out.note_nlp = 
+fs.out.note_nlp_file = 
 fs.out.note_segments = 
 fs.out.annotated_text = 
 

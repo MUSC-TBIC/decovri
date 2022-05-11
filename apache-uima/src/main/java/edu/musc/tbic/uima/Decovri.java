@@ -38,6 +38,7 @@ import org.apache.ctakes.core.ae.SimpleSegmentAnnotator;
 import org.apache.ctakes.core.ae.SentenceDetector;
 
 import edu.musc.tbic.opennlp.OpenNlpTokenizer;
+import edu.musc.tbic.textspans.BinarySVMSectionizer;
 import edu.musc.tbic.textspans.TemplateSectionizer;
 //import edu.musc.tbic.sentencePatch.delimPatcher;
 //import edu.musc.tbic.textspans.WekaSectionizer;
@@ -236,10 +237,15 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if (sampleDir.startsWith("~")){
                 mLogger.warn("Input directory starts with '~', did you mean to use your full home path?");
             }
+            String suffix_list = "";
+            if( pipeline_properties.containsKey( "fs.in.suffixes.allow" ) ){
+            	suffix_list = pipeline_properties.getProperty( "fs.in.suffixes.allow" );
+            }
             mLogger.info( "Loading module 'Text Reader' for " + sampleDir );
             collectionReader = CollectionReaderFactory.createReaderDescription(
                     FileSystemCollectionReader.class ,
-                    FileSystemCollectionReader.PARAM_INPUTDIR , sampleDir );
+                    FileSystemCollectionReader.PARAM_INPUTDIR , sampleDir ,
+                    FileSystemCollectionReader.PARAM_SUFFIXESALLOW , suffix_list );
         } else if( pipeline_modules.contains( "OMOP CDM Reader" ) ){
             ////////////////////////////////////
             // Initialize database reader
@@ -326,6 +332,28 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                         TemplateSectionizer.PARAM_SECTIONTEMPLATES , template_file);
             }
             builder.add(templateSectionizer );         
+        } else if( pipeline_modules.contains( "SVM Sectionizer" ) ){
+        	String training_file = "";
+        	String model_file = "";
+            AnalysisEngineDescription svmSectionizer = null;
+            if( pipeline_properties.containsKey( "sectionizer.training_file" ) ){
+            	training_file = pipeline_properties.getProperty( "sectionizer.training_file" );
+            }
+            if( pipeline_properties.containsKey( "sectionizer.model_file" ) ){
+            	model_file = pipeline_properties.getProperty( "sectionizer.model_file" );
+            }
+            if( model_file == null || model_file.equals("") ) {
+                mLogger.info( "Loading module 'BinarySVMSectionizer' with default values" );
+                
+            } else {
+                mLogger.info( "Loading module 'BinarySVMSectionizer' with " + model_file );
+            }
+            svmSectionizer = AnalysisEngineFactory.createEngineDescription(
+            		BinarySVMSectionizer.class ,
+                    BinarySVMSectionizer.PARAM_SECTIONTRAININGFILE , training_file ,
+                    BinarySVMSectionizer.PARAM_SECTIONMODEL , model_file ,
+                    BinarySVMSectionizer.PARAM_SENTENCETYPE, sentence_type );
+            builder.add( svmSectionizer );         
         } else {
             mLogger.warn( "No known sectionizer provided" );
         }
@@ -482,7 +510,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                 context_log_file = pipeline_properties.getProperty( "context.log_file" );
             }
             AnalysisEngineDescription conText = AnalysisEngineFactory.createEngineDescription(
-                    ContextAnnotator.class,
+                    ContextAnnotator.class ,
                     ContextAnnotator.PARAM_SENTENCETYPE, sentence_type ,
                     ConText.PARAM_NEGEX_PHRASE_FILE , "resources/dict/ConText_rules.txt" ,
                     ConText.PARAM_CONTEXT_LOG , context_log_file
@@ -511,6 +539,13 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         ////////////////////////////////////////////////////////////////////////
 
 
+        ////////////////////////////////////////////////////////////////////////
+        // Output Writers
+        int section_output_depth = 0;
+        if( pipeline_properties.containsKey( "fs.out.depth" ) ){
+            section_output_depth = Integer.valueOf( pipeline_properties.getProperty( "fs.out.depth" ) );
+        }
+        
         ////////////////////////////////////
         // Initialize annotated text writer
         ////////////////////////////////////
@@ -545,6 +580,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             AnalysisEngineDescription txtWriterTest = AnalysisEngineFactory.createEngineDescription(
                     AnnotatedTextWriter.class , 
                     AnnotatedTextWriter.PARAM_OUTPUTDIR , txt_output_dir ,
+                    AnnotatedTextWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     AnnotatedTextWriter.PARAM_ERRORDIR , txt_error_dir );
                 	builder.add( txtWriterTest );
         }
@@ -581,6 +617,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             txtSectionWriter = AnalysisEngineFactory.createEngineDescription(
                     AnnotatedSectionWriter.class , 
                     AnnotatedSectionWriter.PARAM_OUTPUTDIR , section_output_dir ,
+                    AnnotatedSectionWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     AnnotatedSectionWriter.PARAM_ERRORDIR , section_error_dir );
             if( ! mTestFlag ){
                 builder.add( txtSectionWriter );
@@ -622,6 +659,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             xmlWriter = AnalysisEngineFactory.createEngineDescription(
                     XmlWriter.class , 
                     XmlWriter.PARAM_OUTPUTDIR , xml_output_dir ,
+                    XmlWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     XmlWriter.PARAM_ERRORDIR , xml_error_dir );
             if( ! mTestFlag ){
                 builder.add( xmlWriter );

@@ -35,6 +35,17 @@ public class AnnotatedTextWriter extends JCasAnnotator_ImplBase {
 	public static final String PARAM_OUTPUTDIR = "OutputDirectory";
 	@ConfigurationParameter(name = PARAM_OUTPUTDIR, description = "Output directory to write xmi files", mandatory = true)
 	private String mOutputDir;
+
+	/**
+	 * Name of configuration parameter that must be set to the depth of directory/directories into which the
+	 * output files will be written.
+	 */
+	public static final String PARAM_OUTPUTDEPTH = "OutputDepth";
+	@ConfigurationParameter( name = PARAM_OUTPUTDEPTH, 
+			description = "Output directory depth to write annotated section files (0 means all in one folder; 2 means two levels deep)", 
+			mandatory = false)
+	private int mOutputDepth;
+	
 	/**
 	 * Name of configuration parameter that must be set to the path of a directory into which the
 	 * output files containing some sort of unrecoverable error will be written. These files are
@@ -58,6 +69,11 @@ public class AnnotatedTextWriter extends JCasAnnotator_ImplBase {
 		File outputDirectory = new File( mOutputDir );
 		if ( !outputDirectory.exists() ) {
 			outputDirectory.mkdirs();
+		}
+		if( context.getConfigParameterValue( "OutputDepth" ) == null ){
+			mOutputDepth = 0;
+		} else {
+			mOutputDepth = (int) context.getConfigParameterValue( "OutputDepth" );
 		}
 		mErrorDir = (String) context.getConfigParameterValue( "ErrorDirectory" );
 		
@@ -83,8 +99,25 @@ public class AnnotatedTextWriter extends JCasAnnotator_ImplBase {
     			note_id = note_id.substring( 0 , note_id.length() - 4 );
     		}
         }
+        
+        String leafOutputDirectory = mOutputDir;
+		// TODO - make this flexible enough to handle arbitrary depths
+		if( mOutputDepth == 2 ) {
+			String shallowFolder = note_id.substring( note_id.length() - 2 , note_id.length() );
+			String deepFolder = note_id.substring( note_id.length() - 4 , note_id.length() - 2 );
+			File shallowOutputDirectory = new File( mOutputDir + "/" + shallowFolder );
+			if ( !shallowOutputDirectory.exists() ) {
+				shallowOutputDirectory.mkdirs();
+			}
+			File deepOutputDirectory = new File( mOutputDir + "/" + shallowFolder + "/" + deepFolder );
+			if ( !deepOutputDirectory.exists() ) {
+				deepOutputDirectory.mkdirs();
+			}
+			leafOutputDirectory = deepOutputDirectory.toString();
+		}
+		
     	String outFileName = note_id + ".txt";
-		File txtFile = new File( mOutputDir, outFileName );
+		File txtFile = new File( leafOutputDirectory , outFileName );
 		// TODO - streamline by only creating this path when needed
 //		File errFile = new File( mErrorDir, outFileName );
 		

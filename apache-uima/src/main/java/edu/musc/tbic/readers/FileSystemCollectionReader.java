@@ -62,6 +62,12 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
    * files.
    */
   public static final String PARAM_INPUTDIR = "InputDirectory";
+  
+/**
+ * Name of configuration parameter that must be set to the space-delimited list of file endings 
+ * to include in processing. An empty list allows all files, except .DS_STORE through
+ */
+public static final String PARAM_SUFFIXESALLOW = "AllowedSuffixes";
 
   /**
    * Name of configuration parameter that contains the character encoding used by the input files.
@@ -83,6 +89,9 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
   
   /** The m files. */
   private ArrayList<File> mFiles;
+  
+  /** The m files. */
+  private ArrayList<String> mAllowedSuffixes;
 
   /** The m encoding. */
   private String mEncoding;
@@ -121,6 +130,13 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
     // get list of files in the specified directory, and subdirectories if the
     // parameter PARAM_SUBDIR is set to True
     mFiles = new ArrayList<>();
+    mAllowedSuffixes = new ArrayList<>();
+    String suffix_list = (String) getConfigParameterValue(PARAM_SUFFIXESALLOW);
+    if( suffix_list != null && !( suffix_list.equals( "" ) ) ) {
+    	for( String suffix : suffix_list.split(" ") ) {
+    		mAllowedSuffixes.add( suffix );
+    	}
+    }
     addFilesFromDir(directory);
   }
   
@@ -135,8 +151,17 @@ public class FileSystemCollectionReader extends CollectionReader_ImplBase {
 	  File[] files = dir.listFiles();
 	  for( int i = 0 ; i < files.length ; i++ ) {
 		  if( ! files[ i ].isDirectory() &&
-			  ! files[ i ].getName().endsWith( ".DS_Store" ) ){
-			  mFiles.add( files[ i ] );
+			  ! files[ i ].getName().endsWith( ".DS_Store" ) ) {
+			  if( mAllowedSuffixes.size() == 0 ){
+				  mFiles.add( files[ i ] );
+			  }	else {
+				  for( String suffix : mAllowedSuffixes ) {
+					  if( files[ i ].getName().endsWith( suffix ) ) {
+						  mFiles.add( files[ i ] );
+						  break;
+					  }
+				  }
+			  }
 		  } else if( mRecursive ){
 			  addFilesFromDir( files[ i ] );
 		  }

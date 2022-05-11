@@ -1,0 +1,40 @@
+^[a-zA-Z ]*Allergies[a-zA-Z ]*:	Allergies		
+^Chief Complaint:	Chief complaint		
+^Discharge Diagnos(e|i)s:	Discharge diagnoses		
+^Diagnos(e|i)s:	Diagnoses		
+^[a-zA-Z ]*Dx:	Diagnoses		
+^Family History:	Family history		
+^Brief Hospital Course:	Hospital course		
+^Hr:	Investigations/Results		
+^Labs:	Laboratory tests		
+
+^Admission Medications:	Admission medications		
+^Discharge Medications:	Discharge medications		
+^[a-zA-Z ]*Medications:	Medications		
+^[a-zA-Z ]*Meds:	Medications		
+
+^[a-zA-Z ]*(Diet|Nutrition)[a-zA-Z ]*:	Nutrition		
+^Past Medical History:	Past medical history		
+^PMHx?:	Past medical history		
+^Past Surgical History:	Past surgical history		
+^PSH:	Past surgical history		
+^(Past )?History:	Past history		
+^History of Present Illness:	Present illness		
+^Objective:	Physical examination/Status		
+^Physical Exam:	Physical examination/Status		
+^Social (History|Hx):	Social history		
+^Social:	Social history		
+^SocHx?:	Social history		
+^(Brief|Past) Social (History|Hx):	Social history		
+^Personal and Social (History|Hx):	Social history		
+^Social and Habit (History|Hx):	Social history		
+^Social (History|Hx) and Health Related Behavior:	Social history		
+^Other Pertinent Social (History|Hx):	Social history		
+^Social History is Significant for:	Social history		
+^Correction to Social (History|Hx):	Social history		
+^[0-9]+. [a-zA-Z ]+ -	Problems		
+^Family and Social (History|Hx):	Social history		
+^Social and Family (History|Hx):	Social history		
+^[a-zA-Z ]*(Height|Ht):	Subsection		
+^[a-zA-Z ]*(Weight|Wt):	Subsection		
+^Subjective:	Unknown/Unclassified		
