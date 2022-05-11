@@ -111,11 +111,10 @@ class SectionizerTest {
         }
 
         // Check Size
-        assertEquals( 10 , mSectionAnnotations.size() );
+        assertEquals( 9 , mSectionAnnotations.size() );
 
         assertEquals( "Unknown/Unclassified" , mSectionAnnotations.get( 0 ).getSectionId() );
-//        assertEquals( "Diagnoses" , mSectionAnnotations.get( 1 ).getSectionId() );
-//        assertEquals( "Diagnoses" , mSectionAnnotations.get( 2 ).getSectionId() );
+        assertEquals( "Diagnoses" , mSectionAnnotations.get( 8 ).getSectionId() );
 
     }
 
@@ -136,13 +135,13 @@ class SectionizerTest {
         } catch(UIMAException e) {
             e.printStackTrace();
         }
-
+        
         // Check Size
-        assertEquals( 5 , mSectionAnnotations.size() );
+        assertEquals( 4 , mSectionAnnotations.size() );
 
         assertEquals( "Date/Time" , mSectionAnnotations.get( 0 ).getSectionId() );
         assertEquals( "Unknown/Unclassified" , mSectionAnnotations.get( 1 ).getSectionId() );
-//        assertEquals( "Medications" , mSectionAnnotations.get( 2 ).getSectionId() );
+        assertEquals( "Medications" , mSectionAnnotations.get( 3 ).getSectionId() );
 
     }
 
