@@ -585,6 +585,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // determined by whether it is a test run or a 
             // production run...
             String section_output_dir = "";
+            int section_output_depth = 0;
             String section_error_dir = "";
             if( mTestFlag ){
                 mLogger.info( "Loading module 'txtSectionWriter' for test" );
@@ -605,10 +606,14 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
                 section_error_dir = pipeline_properties.getProperty( "fs.error.sections" );
                 mLogger.debug( "Setting annotated txt error directory: " + section_error_dir );
             }
+            if( pipeline_properties.containsKey( "fs.out.depth" ) ){
+                section_output_depth = Integer.valueOf( pipeline_properties.getProperty( "fs.out.depth" ) );
+            }
             // Then we use these values to construct our writer
             txtSectionWriter = AnalysisEngineFactory.createEngineDescription(
                     AnnotatedSectionWriter.class , 
                     AnnotatedSectionWriter.PARAM_OUTPUTDIR , section_output_dir ,
+                    AnnotatedSectionWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     AnnotatedSectionWriter.PARAM_ERRORDIR , section_error_dir );
             if( ! mTestFlag ){
                 builder.add( txtSectionWriter );
