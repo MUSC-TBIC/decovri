@@ -43,7 +43,7 @@ public class AnnotatedSectionWriter extends JCasAnnotator_ImplBase {
 	private String mOutputDir;
 
 	/**
-	 * Name of configuration parameter that must be set to the path of a directory into which the
+	 * Name of configuration parameter that must be set to the depth of directory/directories into which the
 	 * output files will be written.
 	 */
 	public static final String PARAM_OUTPUTDEPTH = "OutputDepth";

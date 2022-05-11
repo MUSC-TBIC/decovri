@@ -539,6 +539,13 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
         ////////////////////////////////////////////////////////////////////////
 
 
+        ////////////////////////////////////////////////////////////////////////
+        // Output Writers
+        int section_output_depth = 0;
+        if( pipeline_properties.containsKey( "fs.out.depth" ) ){
+            section_output_depth = Integer.valueOf( pipeline_properties.getProperty( "fs.out.depth" ) );
+        }
+        
         ////////////////////////////////////
         // Initialize annotated text writer
         ////////////////////////////////////
@@ -573,6 +580,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             AnalysisEngineDescription txtWriterTest = AnalysisEngineFactory.createEngineDescription(
                     AnnotatedTextWriter.class , 
                     AnnotatedTextWriter.PARAM_OUTPUTDIR , txt_output_dir ,
+                    AnnotatedTextWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     AnnotatedTextWriter.PARAM_ERRORDIR , txt_error_dir );
                 	builder.add( txtWriterTest );
         }
@@ -585,7 +593,6 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             // determined by whether it is a test run or a 
             // production run...
             String section_output_dir = "";
-            int section_output_depth = 0;
             String section_error_dir = "";
             if( mTestFlag ){
                 mLogger.info( "Loading module 'txtSectionWriter' for test" );
@@ -605,9 +612,6 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             if( pipeline_properties.containsKey( "fs.error.sections" ) ){
                 section_error_dir = pipeline_properties.getProperty( "fs.error.sections" );
                 mLogger.debug( "Setting annotated txt error directory: " + section_error_dir );
-            }
-            if( pipeline_properties.containsKey( "fs.out.depth" ) ){
-                section_output_depth = Integer.valueOf( pipeline_properties.getProperty( "fs.out.depth" ) );
             }
             // Then we use these values to construct our writer
             txtSectionWriter = AnalysisEngineFactory.createEngineDescription(
@@ -655,6 +659,7 @@ public class Decovri extends org.apache.uima.fit.component.JCasAnnotator_ImplBas
             xmlWriter = AnalysisEngineFactory.createEngineDescription(
                     XmlWriter.class , 
                     XmlWriter.PARAM_OUTPUTDIR , xml_output_dir ,
+                    XmlWriter.PARAM_OUTPUTDEPTH , section_output_depth ,
                     XmlWriter.PARAM_ERRORDIR , xml_error_dir );
             if( ! mTestFlag ){
                 builder.add( xmlWriter );
