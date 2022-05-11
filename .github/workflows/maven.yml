@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      UIMA_VERSION: ${{ '2.10.4' }}
+      UIMA_VERSION: ${{ '2.11.0' }}
       UIMA_HOME: ${{ '~/apache-uima' }}
       CONCEPTMAPPER_VERSION: ${{ '2.10.2' }}
       CONCEPTMAPPER_HOME: ${{ '~/ConceptMapper' }}
